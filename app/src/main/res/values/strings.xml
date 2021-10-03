@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">UnknowApp</string>
+    <string name="logo">Logo</string>
+    <string name="visible_password">VisisblePassword</string>
+    <string name="gone_password">GonePassword</string>
+    <string name="hint_email">Email</string>
+    <string name="hint_password">Password</string>
+</resources>
