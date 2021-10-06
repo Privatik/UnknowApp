@@ -25,6 +25,7 @@ fun StandardTextField(
     hint: String,
     error: String = "",
     maxLength: Int = 40,
+    backgroundColor: Color = Color.Transparent,
     keyboardType: KeyboardType = KeyboardType.Text,
     onValueChange: (String) -> Unit = {}
 ){
@@ -82,6 +83,11 @@ fun StandardTextField(
         keyboardOptions = KeyboardOptions(
             keyboardType = keyboardType
         ),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
+        colors = TextFieldDefaults.textFieldColors(
+            backgroundColor = backgroundColor,
+            focusedIndicatorColor = MaterialTheme.colors.onSurface,
+            cursorColor = MaterialTheme.colors.onSurface
+        )
     )
 }

@@ -6,7 +6,7 @@ import androidx.navigation.NavController
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.io.unknow.presentation.MainActivity
 import com.io.unknow.presentation.splash.SplashScreen
-import com.io.unknow.presentation.theme.UnknowAppTheme
+import com.io.unknow.presentation.ui.theme.UnknowAppTheme
 import io.mockk.MockKAnnotations
 import io.mockk.impl.annotations.RelaxedMockK
 import org.junit.Before

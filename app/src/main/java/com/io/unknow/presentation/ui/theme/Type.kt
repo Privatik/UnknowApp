@@ -1,4 +1,4 @@
-package com.io.unknow.presentation.theme
+package com.io.unknow.presentation.ui.theme
 
 import androidx.compose.material.Typography
 import androidx.compose.ui.text.TextStyle

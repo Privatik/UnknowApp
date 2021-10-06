@@ -5,4 +5,13 @@
     <string name="gone_password">GonePassword</string>
     <string name="hint_email">Email</string>
     <string name="hint_password">Password</string>
+    <string name="register">Register</string>
+    <string name="sing_in">Sing in</string>
+    <string name="sing_up">Sing up</string>
+    <string name="sex">Sex:</string>
+    <string name="sex_men">M</string>
+    <string name="sex_women">W</string>
+    <string name="back">Back</string>
+    <string name="birth_day">Birth Day</string>
+    <string name="no_date_selected">No date selected</string>
 </resources>

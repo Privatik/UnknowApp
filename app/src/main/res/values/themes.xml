@@ -23,4 +23,12 @@
     <style name="Theme.UnknowApp.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="Theme.UnknowApp.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="DialogTheme" parent="Theme.AppCompat.DayNight.Dialog">
+        <item name="colorAccent">@color/dark_pink_</item>                   <!--header background-->
+        <item name="android:windowBackground">@color/ebony_clay</item>      <!--calendar background-->
+        <item name="android:colorControlActivated">@color/dark_pink_</item> <!--selected day-->
+        <item name="android:textColorPrimary">@color/white</item>           <!--days of the month-->
+        <item name="android:textColorSecondary">@color/white</item>         <!--days of the week-->
+    </style>
 </resources>
