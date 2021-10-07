@@ -1,11 +1,8 @@
 package com.io.unknow.presentation.login
 
 import android.content.res.Configuration
-import android.widget.Space
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
@@ -56,7 +53,8 @@ fun LoginScreenPortrait(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(SpaceMedium),
+            .padding(SpaceMedium)
+            .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.Center,
     ) {
         Image(
@@ -70,7 +68,8 @@ fun LoginScreenPortrait(
             keyboardType = KeyboardType.Email,
             onValueChange = {
                 viewModel.setEmailText(it)
-            }
+            },
+            error = viewModel.erroeEmailText.value
         )
         Spacer(modifier = Modifier.height(SpaceMedium))
         StandardTextField(
@@ -79,7 +78,8 @@ fun LoginScreenPortrait(
             keyboardType = KeyboardType.Password,
             onValueChange = {
                 viewModel.setPasswordText(it)
-            }
+            },
+            error = viewModel.erroePasswordText.value
         )
         Spacer(modifier = Modifier.height(SpaceLarge))
         Row(
@@ -173,25 +173,26 @@ fun LoginScreenLandscape(
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Button(
-                    onClick = {
-                        navController.navigate(Screen.RegisterScreen.route)
-                    },
-                    shape = MaterialTheme.shapes.medium,
-                    colors = ButtonDefaults.buttonColors(
-                        backgroundColor = MaterialTheme.colors.onPrimary
-                    )
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.sing_up),
-                        color = Color.White,
-                        modifier = Modifier.padding(SpaceSmall)
-                    )
-                }
+//                Button(
+//                    onClick = {
+//                        navController.navigate(Screen.PagesProfileAndListOfDialogsScreen.route)
+//                      //  navController.navigate(Screen.RegisterScreen.route)
+//                    },
+//                    shape = MaterialTheme.shapes.medium,
+//                    colors = ButtonDefaults.buttonColors(
+//                        backgroundColor = MaterialTheme.colors.onPrimary
+//                    )
+//                ) {
+//                    Text(
+//                        text = stringResource(id = R.string.sing_up),
+//                        color = Color.White,
+//                        modifier = Modifier.padding(SpaceSmall)
+//                    )
+//                }
 
                 Button(
                     onClick = {
-
+                        navController.navigate(Screen.PagesProfileAndListOfDialogsScreen.route)
                     },
                     shape = MaterialTheme.shapes.medium,
                     colors = ButtonDefaults.buttonColors(

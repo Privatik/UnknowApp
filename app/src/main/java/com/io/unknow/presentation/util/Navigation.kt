@@ -5,6 +5,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.io.unknow.presentation.login.LoginScreen
+import com.io.unknow.presentation.pages_profile_and_list_of_dialogs.PagesProfileAndListOfDialogs
 import com.io.unknow.presentation.register.RegisterScreen
 import com.io.unknow.presentation.splash.SplashScreen
 
@@ -25,6 +26,9 @@ fun Navigation(){
         }
         composable(Screen.RegisterScreen.route){
             RegisterScreen(navController = navController)
+        }
+        composable(Screen.PagesProfileAndListOfDialogsScreen.route){
+            PagesProfileAndListOfDialogs(navController = navController)
         }
 
     }

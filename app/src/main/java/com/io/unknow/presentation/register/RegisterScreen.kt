@@ -1,6 +1,8 @@
 package com.io.unknow.presentation.register
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -13,7 +15,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.io.unknow.R
-import com.io.unknow.domain.enums.Sex
+import com.io.unknow.domain.util.Sex
 import com.io.unknow.presentation.components.DatePickerDialog
 import com.io.unknow.presentation.components.StandardTextField
 import com.io.unknow.presentation.ui.theme.SpaceLarge
@@ -26,24 +28,14 @@ fun RegisterScreen(
     navController: NavController,
     viewModel: RegisterViewModel = hiltViewModel()
 ){
-    RegisterScreenPortrait(
-        navController = navController,
-        viewModel = viewModel
-    )
-}
-
-@Composable
-fun RegisterScreenPortrait(
-    navController: NavController,
-    viewModel: RegisterViewModel
-){
     val context = LocalContext.current
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(SpaceMedium),
-        verticalArrangement = Arrangement.Center
+            .padding(SpaceMedium)
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.Center,
     ) {
         StandardTextField(
             text = viewModel.emailText.value,
@@ -51,7 +43,8 @@ fun RegisterScreenPortrait(
             keyboardType = KeyboardType.Email,
             onValueChange = {
                 viewModel.setEmailText(it)
-            }
+            },
+            error = viewModel.erroeEmailText.value
         )
         Spacer(modifier = Modifier.height(SpaceMedium))
         StandardTextField(
@@ -60,7 +53,8 @@ fun RegisterScreenPortrait(
             keyboardType = KeyboardType.Password,
             onValueChange = {
                 viewModel.setPasswordText(it)
-            }
+            },
+            error = viewModel.erroePasswordText.value
         )
         Spacer(modifier = Modifier.height(SpaceMedium))
         Text(
@@ -169,7 +163,7 @@ fun RegisterScreenPortrait(
             }
             Button(
                 onClick = {
-                   // viewModel.setDatBirthDay(EMPTY_BIRT_DAY)
+                    // viewModel.setDatBirthDay(EMPTY_BIRT_DAY)
                 },
                 shape = MaterialTheme.shapes.medium,
                 colors = ButtonDefaults.buttonColors(

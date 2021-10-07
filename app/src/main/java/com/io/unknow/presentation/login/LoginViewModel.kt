@@ -18,11 +18,25 @@ class LoginViewModel @Inject constructor(
     private val _passwordText = mutableStateOf("")
     val passwordText: State<String> = _passwordText
 
+    private val _errorEmailText = mutableStateOf("")
+    val erroeEmailText: State<String> = _errorEmailText
+
+    private val _errorPasswordText = mutableStateOf("")
+    val erroePasswordText: State<String> = _errorPasswordText
+
     fun setEmailText(email: String){
         _emailText.value = email
     }
 
     fun setPasswordText(password: String) {
         _passwordText.value = password
+    }
+
+    fun setErrorEmailText(error: String){
+        _errorEmailText.value = error
+    }
+
+    fun setErrorPasswordText(error: String){
+        _errorEmailText.value = error
     }
 }

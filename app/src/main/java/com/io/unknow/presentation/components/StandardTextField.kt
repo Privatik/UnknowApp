@@ -1,5 +1,6 @@
 package com.io.unknow.presentation.components
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -17,6 +18,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import com.io.unknow.R
 
 @Composable
@@ -37,57 +39,68 @@ fun StandardTextField(
         mutableStateOf(keyboardType == KeyboardType.Password)
     }
 
-    TextField(
-        value = text,
-        textStyle = MaterialTheme.typography.h3,
-        onValueChange = {
-            if (it.length <= maxLength) {
-                onValueChange(it)
-            }
-        },
-        placeholder = {
-            Text(
-                text = hint,
-                style = MaterialTheme.typography.body1
-            )
-        },
-        visualTransformation = if (!isPasswordVisible && isPasswordToggleDisplayed) {
-            PasswordVisualTransformation()
-        } else {
-            VisualTransformation.None
-        },
-        singleLine = true,
-        isError = error != "",
-        trailingIcon = {
-            if (isPasswordToggleDisplayed) {
-                IconButton(onClick = {
-                    isPasswordVisible = !isPasswordVisible
-                }) {
-                    Icon(
-                        imageVector =
-                        if (isPasswordVisible) {
-                            Icons.Filled.VisibilityOff
-                        } else {
-                            Icons.Filled.Visibility
-                        },
-                        contentDescription =
-                        if (isPasswordVisible) {
-                            stringResource(id = R.string.visible_password)
-                        } else {
-                            stringResource(id = R.string.gone_password)
-                        }
-                    )
+    Column(Modifier.fillMaxWidth()) {
+        TextField(
+            value = text,
+            textStyle = MaterialTheme.typography.h3,
+            onValueChange = {
+                if (it.length <= maxLength) {
+                    onValueChange(it)
                 }
-            }
-        },
-        keyboardOptions = KeyboardOptions(
-            keyboardType = keyboardType
-        ),
-        modifier = Modifier.fillMaxWidth(),
-        colors = TextFieldDefaults.textFieldColors(
-            backgroundColor = backgroundColor,
-            focusedIndicatorColor = MaterialTheme.colors.onSurface,
-            cursorColor = MaterialTheme.colors.onSurface
+            },
+            placeholder = {
+                Text(
+                    text = hint,
+                    style = MaterialTheme.typography.body1
+                )
+            },
+            visualTransformation = if (!isPasswordVisible && isPasswordToggleDisplayed) {
+                PasswordVisualTransformation()
+            } else {
+                VisualTransformation.None
+            },
+            singleLine = true,
+            isError = error != "",
+            trailingIcon = {
+                if (isPasswordToggleDisplayed) {
+                    IconButton(onClick = {
+                        isPasswordVisible = !isPasswordVisible
+                    }) {
+                        Icon(
+                            imageVector =
+                            if (isPasswordVisible) {
+                                Icons.Filled.VisibilityOff
+                            } else {
+                                Icons.Filled.Visibility
+                            },
+                            contentDescription =
+                            if (isPasswordVisible) {
+                                stringResource(id = R.string.visible_password)
+                            } else {
+                                stringResource(id = R.string.gone_password)
+                            }
+                        )
+                    }
+                }
+            },
+            keyboardOptions = KeyboardOptions(
+                keyboardType = keyboardType
+            ),
+            modifier = Modifier.fillMaxWidth(),
+            colors = TextFieldDefaults.textFieldColors(
+                backgroundColor = backgroundColor,
+                focusedIndicatorColor = MaterialTheme.colors.onSurface,
+                cursorColor = MaterialTheme.colors.onSurface,
+                errorIndicatorColor = Color.Red
+            )
         )
-    )
+        if (error != "") {
+            Text(
+                text = error,
+                modifier = Modifier.fillMaxWidth(),
+                color = Color.Red,
+                textAlign = TextAlign.End
+            )
+        }
+    }
 }
