@@ -62,14 +62,57 @@ fun LoginScreenPortrait(
             contentDescription = stringResource(id = R.string.logo)
         )
         Spacer(modifier = Modifier.height(SpaceMedium))
+        LoginColumn(
+            navController = navController,
+            viewModel = viewModel)
+    }
+}
+
+@Composable
+fun LoginScreenLandscape(
+    navController: NavController,
+    viewModel: LoginViewModel
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(SpaceMedium),
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.ic_logo),
+            contentDescription = stringResource(id = R.string.logo),
+            //modifier = Modifier.offset(y = SpaceSmall)
+        )
+        LoginColumn(
+            navController = navController,
+            viewModel = viewModel,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(SpaceMedium)
+                .verticalScroll(rememberScrollState())
+        )
+    }
+}
+
+@Composable
+fun LoginColumn(
+    navController: NavController,
+    viewModel: LoginViewModel,
+    modifier: Modifier = Modifier
+){
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.Center
+    ) {
         StandardTextField(
             text = viewModel.emailText.value,
             hint = stringResource(R.string.hint_email),
             keyboardType = KeyboardType.Email,
             onValueChange = {
                 viewModel.setEmailText(it)
-            },
-            error = viewModel.erroeEmailText.value
+            }
         )
         Spacer(modifier = Modifier.height(SpaceMedium))
         StandardTextField(
@@ -78,8 +121,7 @@ fun LoginScreenPortrait(
             keyboardType = KeyboardType.Password,
             onValueChange = {
                 viewModel.setPasswordText(it)
-            },
-            error = viewModel.erroePasswordText.value
+            }
         )
         Spacer(modifier = Modifier.height(SpaceLarge))
         Row(
@@ -107,7 +149,7 @@ fun LoginScreenPortrait(
 
             Button(
                 onClick = {
-
+                    navController.navigate(Screen.PagesProfileAndListOfDialogsScreen.route)
                 },
                 shape = MaterialTheme.shapes.medium,
                 colors = ButtonDefaults.buttonColors(
@@ -119,92 +161,6 @@ fun LoginScreenPortrait(
                     color = Color.White,
                     modifier = Modifier.padding(SpaceSmall)
                 )
-            }
-        }
-    }
-}
-
-@Composable
-fun LoginScreenLandscape(
-    navController: NavController,
-    viewModel: LoginViewModel
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(SpaceMedium),
-        horizontalArrangement = Arrangement.SpaceEvenly,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.ic_logo),
-            contentDescription = stringResource(id = R.string.logo),
-            //modifier = Modifier.offset(y = SpaceSmall)
-        )
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(SpaceMedium)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.Center
-        ) {
-            StandardTextField(
-                text = viewModel.emailText.value,
-                hint = stringResource(R.string.hint_email),
-                keyboardType = KeyboardType.Email,
-                onValueChange = {
-                    viewModel.setEmailText(it)
-                }
-            )
-            Spacer(modifier = Modifier.height(SpaceMedium))
-            StandardTextField(
-                text = viewModel.passwordText.value,
-                hint = stringResource(R.string.hint_password),
-                keyboardType = KeyboardType.Password,
-                onValueChange = {
-                    viewModel.setPasswordText(it)
-                }
-            )
-            Spacer(modifier = Modifier.height(SpaceLarge))
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(SpaceSmall),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-//                Button(
-//                    onClick = {
-//                        navController.navigate(Screen.PagesProfileAndListOfDialogsScreen.route)
-//                      //  navController.navigate(Screen.RegisterScreen.route)
-//                    },
-//                    shape = MaterialTheme.shapes.medium,
-//                    colors = ButtonDefaults.buttonColors(
-//                        backgroundColor = MaterialTheme.colors.onPrimary
-//                    )
-//                ) {
-//                    Text(
-//                        text = stringResource(id = R.string.sing_up),
-//                        color = Color.White,
-//                        modifier = Modifier.padding(SpaceSmall)
-//                    )
-//                }
-
-                Button(
-                    onClick = {
-                        navController.navigate(Screen.PagesProfileAndListOfDialogsScreen.route)
-                    },
-                    shape = MaterialTheme.shapes.medium,
-                    colors = ButtonDefaults.buttonColors(
-                        backgroundColor = MaterialTheme.colors.onPrimary
-                    ),
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.sing_in),
-                        color = Color.White,
-                        modifier = Modifier.padding(SpaceSmall)
-                    )
-                }
             }
         }
     }
