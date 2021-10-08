@@ -9,3 +9,5 @@ val SpaceLarge = 24.dp
 
 val TextSmall = 12.sp
 val TextMedium = 24.sp
+
+val DialogCorner = 12.dp

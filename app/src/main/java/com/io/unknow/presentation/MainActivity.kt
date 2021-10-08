@@ -25,7 +25,7 @@ class MainActivity : ComponentActivity() {
                 Surface(
                     color = MaterialTheme.colors.background,
                     modifier = Modifier.fillMaxSize()) {
-                        Navigation()
+                        Navigation(this)
                 }
             }
         }

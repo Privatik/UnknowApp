@@ -1,33 +1,39 @@
 package com.io.unknow.presentation.profile
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.io.unknow.R
 import com.io.unknow.domain.util.models.ProfileParams
-import com.io.unknow.presentation.ui.theme.SpaceLarge
-import com.io.unknow.presentation.ui.theme.SpaceSmall
-import com.io.unknow.presentation.ui.theme.TextMedium
-import com.io.unknow.presentation.ui.theme.TextSmall
+import com.io.unknow.presentation.ui.theme.*
 
 @Composable
-fun ProfileScreen(){
+fun ProfileScreen(
+    navController: NavController,
+    viewModel: ProfileViewModel = hiltViewModel()
+){
     Column(
         modifier = Modifier
             .fillMaxSize(),
@@ -37,7 +43,7 @@ fun ProfileScreen(){
         TopAppBar(
             modifier = Modifier
                 .fillMaxWidth(),
-            backgroundColor = MaterialTheme.colors.primary,
+            backgroundColor = MaterialTheme.colors.primary
         ) {
             Text(
                 text = "You name",
@@ -49,6 +55,7 @@ fun ProfileScreen(){
             contentPadding = PaddingValues(SpaceSmall)
         ){
             item {
+                Spacer(modifier = Modifier.height(SpaceMedium))
                 Image(
                     painter = painterResource(id = R.drawable.ic_logo),
                     contentDescription = stringResource(id = R.string.logo),
@@ -89,7 +96,12 @@ fun ProfileScreen(){
                             param = "Brest",
                             isTwoRow = true
                         )
-                    ))
+                    ),
+                    isEditMod = true,
+                    onEdit = {
+
+                    }
+                )
             }
         }
     }
@@ -98,39 +110,119 @@ fun ProfileScreen(){
 @Composable
 fun ProfileColumn(
     title: String,
-    listParams: List<ProfileParams>
+    listParams: List<ProfileParams>,
+    isEditMod: Boolean = false,
+    onEdit:(List<ProfileParams>) -> Unit = {}
 ){
     Column(modifier = Modifier
         .fillMaxWidth()
         .background(MaterialTheme.colors.primary)
         .shadow(1.dp)
     ) {
-        Text(
-            text = title,
-            fontSize = TextSmall,
-            color = Color.White,
+        Row(
             modifier = Modifier
+                .wrapContentHeight()
                 .fillMaxSize()
                 .padding(SpaceSmall),
-        )
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = title,
+                fontSize = TextSmall,
+                color = Color.White
+            )
+            if (isEditMod) {
+                var showDialog by remember {
+                    mutableStateOf(false)
+                }
+                if (showDialog){
+                    DialogChangeParams(
+                        listParams = listParams,
+                        onChangeParams = onEdit,
+                        onClose = {
+                            showDialog = !showDialog
+                        }
+                    )
+                }
+                IconButton(onClick = {
+                    showDialog = !showDialog
+                }) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = stringResource(id = R.string.edit),
+                        tint = Color.White
+                    )
+                }
+            }
+        }
         listParams.forEachIndexed { index, profileParams ->
-            Row(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(SpaceSmall),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = profileParams.title,
-                    fontSize = TextMedium
-                )
-                Text(
-                    text = if (profileParams.isTwoRow) "\n${profileParams.param}" else profileParams.param,
-                    fontSize = TextMedium
-                )
+            if (profileParams.isTwoRow){
+                Column(
+                    modifier = Modifier
+                        .wrapContentHeight()
+                        .fillMaxWidth()
+                        .padding(SpaceSmall)
+                ) {
+                    Text(
+                        text = profileParams.title,
+                        fontSize = TextMedium
+                    )
+                    Text(
+                        text = profileParams.param,
+                        fontSize = TextMedium,
+                        textAlign = TextAlign.End,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            } else {
+                Row(
+                    modifier = Modifier
+                        .wrapContentHeight()
+                        .fillMaxSize()
+                        .padding(SpaceSmall),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = profileParams.title,
+                        fontSize = TextMedium
+                    )
+                    Text(
+                        text = profileParams.param,
+                        fontSize = TextMedium
+                    )
+                }
             }
         }
     }
     Spacer(modifier = Modifier.height(SpaceLarge))
+}
+
+@Composable
+fun DialogChangeParams(
+    listParams: List<ProfileParams>,
+    onChangeParams: (List<ProfileParams>) -> Unit,
+    onClose: () -> Unit
+){
+    Dialog(
+        onDismissRequest = { onClose() },
+    ) {
+        Surface(
+            shape = RoundedCornerShape(
+                topStart = DialogCorner,
+                topEnd = DialogCorner,
+                bottomStart = DialogCorner,
+                bottomEnd = 0.dp
+            ),
+            color = MaterialTheme.colors.background
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.padding(SpaceSmall)
+            ) {
+
+            }
+        }
+    }
 }
