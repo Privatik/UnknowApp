@@ -11,3 +11,5 @@ val TextSmall = 12.sp
 val TextMedium = 24.sp
 
 val DialogCorner = 12.dp
+
+val Shadow = 4.dp

@@ -15,7 +15,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.io.unknow.R
-import com.io.unknow.domain.util.Sex
+import com.io.domain.state.Sex
 import com.io.unknow.presentation.components.DatePickerDialog
 import com.io.unknow.presentation.components.StandardTextField
 import com.io.unknow.presentation.ui.theme.SpaceLarge

@@ -27,6 +27,6 @@ fun PagesProfileAndListOfDialogs(
         modifier = Modifier.fillMaxWidth()
     ) { page ->
         if (page == 0) ProfileScreen(navController)
-        else ListOfDialogsScreen()
+        else ListOfDialogsScreen(navController)
     }
 }

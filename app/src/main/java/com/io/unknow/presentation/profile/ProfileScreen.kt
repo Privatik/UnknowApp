@@ -26,7 +26,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.io.unknow.R
-import com.io.unknow.domain.util.models.ProfileParams
+import com.io.unknow.presentation.profile.dialog.DialogChangeParams
+import com.io.unknow.presentation.profile.model.ProfileParams
 import com.io.unknow.presentation.ui.theme.*
 
 @Composable
@@ -197,32 +198,4 @@ fun ProfileColumn(
         }
     }
     Spacer(modifier = Modifier.height(SpaceLarge))
-}
-
-@Composable
-fun DialogChangeParams(
-    listParams: List<ProfileParams>,
-    onChangeParams: (List<ProfileParams>) -> Unit,
-    onClose: () -> Unit
-){
-    Dialog(
-        onDismissRequest = { onClose() },
-    ) {
-        Surface(
-            shape = RoundedCornerShape(
-                topStart = DialogCorner,
-                topEnd = DialogCorner,
-                bottomStart = DialogCorner,
-                bottomEnd = 0.dp
-            ),
-            color = MaterialTheme.colors.background
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(SpaceSmall)
-            ) {
-
-            }
-        }
-    }
 }

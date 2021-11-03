@@ -1,4 +1,4 @@
-package com.io.unknow.domain.util.models
+package com.io.unknow.presentation.profile.model
 
 class ProfileParams (
     val title: String,

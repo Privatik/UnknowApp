@@ -1,4 +1,4 @@
-package com.io.unknow.domain.util
+package com.io.domain.state
 
 enum class Sex {
     MEN,
