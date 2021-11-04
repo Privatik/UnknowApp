@@ -9,8 +9,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -31,19 +34,31 @@ fun CollapsingToolbarWithOutlinedTextFiled(
     onChangeSearchText: (String) -> Unit,
     toolbarOffsetHeightPx: Float,
     toolbarHeightExpandedPx: Float,
+    toolbarHeightCollapsedPx: Float,
     nestedScrollConnection: NestedScrollConnection,
     content: @Composable BoxScope.() -> Unit
 ) {
     val toolbarHeightExpanded = toolbarHeightExpandedPx.roundToInt()
 
+    println("alpa ${toolbarOffsetHeightPx / toolbarHeightExpandedPx}")
+    val color = MaterialTheme.colors.surface
     Column(
-        modifier  = Modifier.padding(
-            start = PaddingPostSmall,
-            top = PaddingPostSmall,
-            end = PaddingPostSmall
-        ),
+        modifier  = Modifier
+            .padding(
+                start = PaddingPostSmall,
+                top = PaddingPostSmall,
+                end = PaddingPostSmall
+            ),
     ) {
         Text(
+            modifier = Modifier
+                .fillMaxWidth()
+                .drawBehind {
+                    drawRect(
+                        color = color,
+                        alpha = 1f -  (toolbarOffsetHeightPx / toolbarHeightExpandedPx)
+                    )
+                },
             text = stringResource(id = R.string.messages),
             fontSize = TextMedium,
             color = MaterialTheme.colors.onPrimary
@@ -64,6 +79,9 @@ fun CollapsingToolbarWithOutlinedTextFiled(
                     .offset
                     {
                         IntOffset(x = 0, y = (toolbarOffsetHeightPx.roundToInt()) - toolbarHeightExpanded)
+                    }
+                    .graphicsLayer {
+                        alpha = toolbarOffsetHeightPx / toolbarHeightExpandedPx
                     },
                 value = searchText,
                 onValueChange = {

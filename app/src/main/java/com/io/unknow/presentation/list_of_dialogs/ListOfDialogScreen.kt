@@ -56,6 +56,7 @@ fun ListOfDialogsScreen(
         },
         toolbarOffsetHeightPx = toolbarOffsetHeightPx.value,
         toolbarHeightExpandedPx = toolbarHeightExpandedPx,
+        toolbarHeightCollapsedPx = toolbarHeightCollapsedPx,
         nestedScrollConnection = nestedScrollConnection
     ){
         LazyColumn(
