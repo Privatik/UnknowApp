@@ -6,6 +6,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -18,6 +20,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import com.io.unknow.R
 import com.io.unknow.presentation.ui.theme.Shadow
+import com.io.unknow.presentation.ui.theme.SizePictureSmall
 
 @Composable
 fun ItemDialog(
@@ -26,34 +29,36 @@ fun ItemDialog(
     isMyMessage: Boolean,
     onClick:() -> Unit
 ){
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colors.primary)
-            .clickable { onClick() }
-            .shadow(Shadow)
-    ) {
-        Image(
-            painter = painterResource(id = R.mipmap.icon),
-            contentDescription = stringResource(id = R.string.icon_user)
-        )
-        Column() {
-            Text(text = nameUser)
-            Text(
-                text = buildAnnotatedString {
-                    if (isMyMessage) {
-                        withStyle(
-                            SpanStyle(
-                                color = MaterialTheme.colors.onBackground,
-                            )
-                        ) {
-                            append(stringResource(id = R.string.you))
-                        }
-                    }
-                    append(lastMessage)
-                }
+    Card {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colors.primary)
+                .clickable { onClick() }
+        ) {
+            Image(
+                modifier = Modifier
+                    .size(SizePictureSmall),
+                painter = painterResource(id = R.mipmap.icon),
+                contentDescription = stringResource(id = R.string.icon_user)
             )
+            Column() {
+                Text(text = nameUser)
+                Text(
+                    text = buildAnnotatedString {
+                        if (isMyMessage) {
+                            withStyle(
+                                SpanStyle(
+                                    color = MaterialTheme.colors.onBackground,
+                                )
+                            ) {
+                                append("${stringResource(id = R.string.you)} ")
+                            }
+                        }
+                        append(lastMessage)
+                    }
+                )
+            }
         }
     }
-
 }

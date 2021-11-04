@@ -12,4 +12,9 @@ val TextMedium = 24.sp
 
 val DialogCorner = 12.dp
 
-val Shadow = 4.dp
+val Shadow = 1.dp
+
+val SizePictureSmall = 50.dp
+
+val PaddingSmall = 5.dp
+val PaddingPostSmall = 10.dp

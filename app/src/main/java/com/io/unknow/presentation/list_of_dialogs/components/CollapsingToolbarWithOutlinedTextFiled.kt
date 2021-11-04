@@ -20,7 +20,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.io.unknow.R
-import com.io.unknow.presentation.ui.theme.SpaceSmall
+import com.io.unknow.presentation.ui.theme.*
+import com.io.unknow.presentation.ui.theme.PaddingSmall
 import timber.log.Timber
 import kotlin.math.roundToInt
 
@@ -28,58 +29,49 @@ import kotlin.math.roundToInt
 fun CollapsingToolbarWithOutlinedTextFiled(
     searchText: String,
     onChangeSearchText: (String) -> Unit,
-    toolbarHeight: Dp,
+    toolbarOffsetHeightPx: Float,
+    toolbarHeightExpandedPx: Float,
+    nestedScrollConnection: NestedScrollConnection,
     content: @Composable BoxScope.() -> Unit
 ) {
-    val titleHeight = toolbarHeight.times(0.35f)
-    val textFieldHeight = toolbarHeight.div(0.65f)
-    val toolbarHeightPx = with(LocalDensity.current){
-        toolbarHeight.roundToPx().toFloat()
-    }
+    val toolbarHeightExpanded = toolbarHeightExpandedPx.roundToInt()
 
-    val toolbarOffsetHeightPx = remember { mutableStateOf(0f) }
-
-    val nestedScrollConnection = remember {
-        object : NestedScrollConnection {
-            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-
-                val delta = available.y
-                val newOffset = toolbarOffsetHeightPx.value + delta
-                toolbarOffsetHeightPx.value = newOffset.coerceIn(-toolbarHeightPx, 0f)
-                return Offset.Zero
-            }
-        }
-    }
-
-    Box(
-        modifier =  Modifier
-            .fillMaxSize()
-            .nestedScroll(nestedScrollConnection)
+    Column(
+        modifier  = Modifier.padding(
+            start = PaddingPostSmall,
+            top = PaddingPostSmall,
+            end = PaddingPostSmall
+        ),
     ) {
-        Column(
+        Text(
+            text = stringResource(id = R.string.messages),
+            fontSize = TextMedium,
+            color = MaterialTheme.colors.onPrimary
+        )
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(toolbarHeight)
-                .padding(start = 5.dp, top = 5.dp)
-                .offset { IntOffset(x = 0, y = toolbarOffsetHeightPx.value.roundToInt()) },
-            horizontalAlignment = Alignment.Start
+                .fillMaxSize()
+                .nestedScroll(nestedScrollConnection)
         ) {
-            Text(
-                modifier = Modifier
-                    .height(titleHeight),
-                text = stringResource(id = R.string.messages),
-                color = MaterialTheme.colors.onPrimary
-            )
-            Spacer(modifier = Modifier.height(SpaceSmall))
             OutlinedTextField(
-                modifier = Modifier.height(textFieldHeight),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        start = PaddingPostSmall,
+                        top = PaddingPostSmall,
+                        end = PaddingPostSmall
+                    )
+                    .offset
+                    {
+                        IntOffset(x = 0, y = (toolbarOffsetHeightPx.roundToInt()) - toolbarHeightExpanded)
+                    },
                 value = searchText,
                 onValueChange = {
                     onChangeSearchText(it)
                 },
                 colors = TextFieldDefaults.outlinedTextFieldColors(
                     textColor = MaterialTheme.colors.surface,
-                    focusedBorderColor = Color.White,
+                    focusedBorderColor = MaterialTheme.colors.surface,
                     unfocusedBorderColor = MaterialTheme.colors.surface
                 ),
                 leadingIcon = {
@@ -96,8 +88,7 @@ fun CollapsingToolbarWithOutlinedTextFiled(
                     )
                 }
             )
-            Spacer(modifier = Modifier.height(SpaceSmall))
+            content()
         }
-        content()
     }
 }

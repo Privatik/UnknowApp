@@ -24,5 +24,5 @@
     <string name="messages">Messages</string>
     <string name="search">Search</string>
     <string name="icon_user">IconUser</string>
-    <string name="you">You:</string>
+    <string name="you">You: </string>
 </resources>
