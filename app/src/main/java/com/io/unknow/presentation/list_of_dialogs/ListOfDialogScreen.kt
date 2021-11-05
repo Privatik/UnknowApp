@@ -25,7 +25,7 @@ fun ListOfDialogsScreen(
     heightToolbarCollapsed: Dp = 50.dp
 ){
 
-    val heightToolbarExpanded: Dp = heightToolbarCollapsed.times(2f)
+    val heightToolbarExpanded: Dp = heightToolbarCollapsed.times(2.5f)
 
     val toolbarHeightCollapsedPx = with(LocalDensity.current){
         heightToolbarCollapsed.roundToPx().toFloat()
@@ -63,7 +63,7 @@ fun ListOfDialogsScreen(
             modifier = Modifier
                 .padding(
                     PaddingValues(
-                        top = with(LocalDensity.current) {(toolbarOffsetHeightPx.value).toDp()},
+                        top = with(LocalDensity.current) {(toolbarOffsetHeightPx.value - toolbarHeightCollapsedPx).toDp()},
                         start = SpaceSmall,
                         end = SpaceSmall
                     )))

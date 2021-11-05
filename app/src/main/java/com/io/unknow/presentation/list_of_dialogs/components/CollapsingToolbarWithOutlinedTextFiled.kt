@@ -1,31 +1,26 @@
 package com.io.unknow.presentation.list_of_dialogs.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
+
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.dp
 import com.io.unknow.R
-import com.io.unknow.presentation.ui.theme.*
+import com.io.unknow.presentation.ui.theme.PaddingPostSmall
 import com.io.unknow.presentation.ui.theme.PaddingSmall
-import timber.log.Timber
+import com.io.unknow.presentation.ui.theme.Shadow
+import com.io.unknow.presentation.ui.theme.TextMedium
 import kotlin.math.roundToInt
 
 @Composable
@@ -40,28 +35,28 @@ fun CollapsingToolbarWithOutlinedTextFiled(
 ) {
     val toolbarHeightExpanded = toolbarHeightExpandedPx.roundToInt()
 
-    println("alpa ${toolbarOffsetHeightPx / toolbarHeightExpandedPx}")
-    val color = MaterialTheme.colors.surface
-    Column(
-        modifier  = Modifier
-            .padding(
-                start = PaddingPostSmall,
-                top = PaddingPostSmall,
-                end = PaddingPostSmall
-            ),
-    ) {
+    val color = MaterialTheme.colors.primary
+    Column {
+        val offset = ((toolbarOffsetHeightPx - toolbarHeightCollapsedPx) / (toolbarHeightExpandedPx - toolbarHeightCollapsedPx))
+        val paddingOffset = with(LocalDensity.current){offset.toDp().times(10)}
         Text(
             modifier = Modifier
                 .fillMaxWidth()
+                .height(with(LocalDensity.current) { toolbarHeightCollapsedPx.toDp() })
                 .drawBehind {
                     drawRect(
                         color = color,
-                        alpha = 1f -  (toolbarOffsetHeightPx / toolbarHeightExpandedPx)
+                        alpha = 1f - offset
                     )
-                },
+                }
+                .padding(start = PaddingSmall + paddingOffset, top = PaddingSmall + paddingOffset),
             text = stringResource(id = R.string.messages),
             fontSize = TextMedium,
             color = MaterialTheme.colors.onPrimary
+        )
+        Spacer(modifier = Modifier
+            .height(Shadow)
+            .background(Color.Black)
         )
         Box(
             modifier = Modifier
@@ -73,25 +68,22 @@ fun CollapsingToolbarWithOutlinedTextFiled(
                     .fillMaxWidth()
                     .padding(
                         start = PaddingPostSmall,
-                        top = PaddingPostSmall,
                         end = PaddingPostSmall
                     )
                     .offset
                     {
-                        IntOffset(x = 0, y = (toolbarOffsetHeightPx.roundToInt()) - toolbarHeightExpanded)
+                        IntOffset(
+                            x = 0,
+                            y = (toolbarOffsetHeightPx.roundToInt()) - toolbarHeightExpanded
+                        )
                     }
                     .graphicsLayer {
-                        alpha = toolbarOffsetHeightPx / toolbarHeightExpandedPx
+                        alpha = offset
                     },
                 value = searchText,
                 onValueChange = {
                     onChangeSearchText(it)
                 },
-                colors = TextFieldDefaults.outlinedTextFieldColors(
-                    textColor = MaterialTheme.colors.surface,
-                    focusedBorderColor = MaterialTheme.colors.surface,
-                    unfocusedBorderColor = MaterialTheme.colors.surface
-                ),
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Search,
@@ -104,7 +96,15 @@ fun CollapsingToolbarWithOutlinedTextFiled(
                         text = stringResource(id = R.string.search),
                         color = MaterialTheme.colors.surface
                     )
-                }
+                },
+                enabled = toolbarOffsetHeightPx == toolbarHeightExpandedPx,
+                readOnly = toolbarOffsetHeightPx != toolbarHeightExpandedPx,
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    textColor = MaterialTheme.colors.onSecondary,
+                    cursorColor =  MaterialTheme.colors.onSecondary,
+                    focusedBorderColor = MaterialTheme.colors.surface,
+                    unfocusedBorderColor = MaterialTheme.colors.surface,
+                )
             )
             content()
         }

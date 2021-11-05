@@ -48,7 +48,8 @@ fun ProfileScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(height = heightToolbar),
-            backgroundColor = MaterialTheme.colors.primary
+            backgroundColor = MaterialTheme.colors.primary,
+            elevation = 0.dp
         ) {
             Text(
                 text = "You name",
@@ -56,6 +57,10 @@ fun ProfileScreen(
                 modifier = Modifier.padding(SpaceSmall)
             )
         }
+        Spacer(modifier = Modifier
+            .height(Shadow)
+            .background(Color.Black)
+        )
         LazyColumn(
             contentPadding = PaddingValues(SpaceSmall)
         ){
