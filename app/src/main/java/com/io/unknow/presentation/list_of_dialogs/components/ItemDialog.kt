@@ -19,10 +19,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import com.io.unknow.R
-import com.io.unknow.presentation.ui.theme.Shadow
-import com.io.unknow.presentation.ui.theme.SizePictureMedium
-import com.io.unknow.presentation.ui.theme.SizePictureSmall
-import com.io.unknow.presentation.ui.theme.SpaceLarge
+import com.io.unknow.presentation.ui.theme.*
 
 @Composable
 fun ItemDialog(
@@ -37,6 +34,7 @@ fun ItemDialog(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .height(SizePictureMedium)
                 .background(MaterialTheme.colors.primary)
                 .clickable { onClick() }
         ) {
@@ -48,7 +46,10 @@ fun ItemDialog(
                 contentDescription = stringResource(id = R.string.icon_user)
             )
             Column(
-                verticalArrangement = Arrangement.SpaceAround
+                modifier = Modifier
+                    .fillMaxHeight(0.5f)
+                    .padding(top = PaddingSmall),
+                verticalArrangement = Arrangement.SpaceBetween,
             ) {
                 Text(
                     text = nameUser
