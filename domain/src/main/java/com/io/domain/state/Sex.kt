@@ -1,7 +1,7 @@
 package com.io.domain.state
 
 enum class Sex {
-    MEN,
-    WOMEN,
+    MAN,
+    WOMAN,
     UNKNOWN
 }
