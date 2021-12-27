@@ -9,7 +9,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-
+    private val authUseCase: Author
 ): ViewModel() {
 
     private val _emailText = mutableStateOf("")

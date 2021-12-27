@@ -6,7 +6,7 @@ import com.io.data.internal.model.LoginRequest
 import com.io.domain.model.User
 import com.io.domain.repository.LoginRepository
 
-internal class LoginRepositoryImpl(
+class LoginRepositoryImpl(
     private val dataSource: LoginDataSource
 ): LoginRepository {
 
@@ -14,7 +14,6 @@ internal class LoginRepositoryImpl(
         val res = dataSource.login(
             LoginRequest(email, password)
         )
-
         return res.user.toModel()
     }
 }
