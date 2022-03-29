@@ -19,7 +19,7 @@ fun Navigation(activity: ComponentActivity){
 
     NavHost(
         navController = navController,
-        startDestination = Screen.SplashScreen.route){
+        startDestination = Screen.PagesProfileAndListOfDialogsScreen.route){
 
         composable(Screen.SplashScreen.route){
             SplashScreen(navController = navController)

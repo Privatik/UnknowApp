@@ -1,12 +1,20 @@
 package com.io.unknow
 
 import android.app.Application
-import dagger.hilt.android.HiltAndroidApp
+import com.io.unknow.di.AppComponent
+import com.io.unknow.di.DaggerAppComponent
 
-@HiltAndroidApp
 class UnknownApplication: Application() {
+
+    private var _appComponent: AppComponent? = null
+    val appComponent: AppComponent
+        get() = _appComponent!!
 
     override fun onCreate() {
         super.onCreate()
+
+        _appComponent = DaggerAppComponent
+            .builder()
+            .build()
     }
 }

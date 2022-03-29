@@ -2,15 +2,14 @@ package com.io.unknow.presentation.login
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import dagger.hilt.android.lifecycle.HiltViewModel
+import com.io.data.internal.repository.LoginRepositoryImpl
+import com.io.domain.usecase.AuthorizationUseCase
 import javax.inject.Inject
 
-@HiltViewModel
-class LoginViewModel @Inject constructor(
-    private val authUseCase: Author
+class LoginViewModel(
 ): ViewModel() {
+    private val useCase = AuthorizationUseCase(LoginRepositoryImpl())
 
     private val _emailText = mutableStateOf("")
     val emailText: State<String> = _emailText

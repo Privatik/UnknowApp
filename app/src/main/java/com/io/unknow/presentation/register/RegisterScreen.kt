@@ -12,7 +12,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.io.unknow.R
 import com.io.domain.state.Sex
@@ -26,7 +25,7 @@ import com.io.unknow.util.Constants.EMPTY_BIRT_DAY
 @Composable
 fun RegisterScreen(
     navController: NavController,
-    viewModel: RegisterViewModel = hiltViewModel()
+    viewModel: RegisterViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ){
     val context = LocalContext.current
 
@@ -73,10 +72,10 @@ fun RegisterScreen(
             )
             Spacer(modifier = Modifier.width(SpaceSmall))
             RadioButton(
-                selected = viewModel.sexRation.value == Sex.MEN,
+                selected = viewModel.sexRation.value == Sex.MAN,
                 onClick = {
-                    if (viewModel.sexRation.value != Sex.MEN) {
-                        viewModel.setSexRation(Sex.MEN)
+                    if (viewModel.sexRation.value != Sex.MAN) {
+                        viewModel.setSexRation(Sex.MAN)
                     }
                 },
                 colors = RadioButtonDefaults.colors(
@@ -91,10 +90,10 @@ fun RegisterScreen(
             )
             Spacer(modifier = Modifier.width(SpaceSmall))
             RadioButton(
-                selected = viewModel.sexRation.value == Sex.WOMEN,
+                selected = viewModel.sexRation.value == Sex.WOMAN,
                 onClick = {
-                    if (viewModel.sexRation.value != Sex.WOMEN) {
-                        viewModel.setSexRation(Sex.WOMEN)
+                    if (viewModel.sexRation.value != Sex.WOMAN) {
+                        viewModel.setSexRation(Sex.WOMAN)
                     }
                 },
                 colors = RadioButtonDefaults.colors(

@@ -17,7 +17,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.io.unknow.R
 import com.io.unknow.presentation.components.StandardTextField
@@ -29,7 +29,7 @@ import com.io.unknow.presentation.util.Screen
 @Composable
 fun LoginScreen(
     navController: NavController,
-    viewModel: LoginViewModel = hiltViewModel()
+    viewModel: LoginViewModel = viewModel()
 ){
     val configuration = LocalConfiguration.current
 

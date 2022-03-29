@@ -1,6 +1,9 @@
 package com.io.unknow.presentation.list_of_dialogs
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -12,7 +15,6 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.io.unknow.presentation.list_of_dialogs.components.CollapsingToolbarWithOutlinedTextFiled
 import com.io.unknow.presentation.list_of_dialogs.components.ItemDialog
@@ -21,7 +23,7 @@ import com.io.unknow.presentation.ui.theme.SpaceSmall
 @Composable
 fun ListOfDialogsScreen(
     navController: NavController,
-    viewModel: ListOfDialogViewModel = hiltViewModel(),
+    viewModel: ListOfDialogViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
     heightToolbarCollapsed: Dp = 50.dp
 ){
 

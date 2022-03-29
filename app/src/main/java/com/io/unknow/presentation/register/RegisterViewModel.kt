@@ -3,11 +3,8 @@ package com.io.unknow.presentation.register
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import com.io.domain.state.Sex
-import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
-@HiltViewModel
 class RegisterViewModel @Inject constructor(
 
 ): ViewModel() {
@@ -24,7 +21,7 @@ class RegisterViewModel @Inject constructor(
     private val _errorPasswordText = mutableStateOf("")
     val erroePasswordText: State<String> = _errorPasswordText
 
-    private val _sexRation = mutableStateOf(com.io.domain.state.Sex.MEN)
+    private val _sexRation = mutableStateOf(com.io.domain.state.Sex.MAN)
     val sexRation: State<com.io.domain.state.Sex> = _sexRation
 
     private val _birthDayText = mutableStateOf("")
