@@ -38,6 +38,16 @@ fun RegisterScreen(
     ) {
         StandardTextField(
             text = viewModel.emailText.value,
+            hint = stringResource(R.string.hint_username),
+            keyboardType = KeyboardType.Email,
+            onValueChange = {
+                viewModel.setEmailText(it)
+            },
+            error = viewModel.erroeEmailText.value
+        )
+        Spacer(modifier = Modifier.height(SpaceMedium))
+        StandardTextField(
+            text = viewModel.emailText.value,
             hint = stringResource(R.string.hint_email),
             keyboardType = KeyboardType.Email,
             onValueChange = {
@@ -55,7 +65,50 @@ fun RegisterScreen(
             },
             error = viewModel.erroePasswordText.value
         )
-        Spacer(modifier = Modifier.height(SpaceMedium))
+        Spacer(modifier = Modifier.height(SpaceLarge))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(SpaceSmall),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Button(
+                onClick = {
+                    navController.popBackStack()
+                },
+                shape = MaterialTheme.shapes.medium,
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = MaterialTheme.colors.onPrimary
+                )
+            ) {
+                Text(
+                    text = stringResource(id = R.string.back),
+                    color = Color.White,
+                    modifier = Modifier.padding(SpaceSmall)
+                )
+            }
+            Button(
+                onClick = {
+                    // viewModel.setDatBirthDay(EMPTY_BIRT_DAY)
+                },
+                shape = MaterialTheme.shapes.medium,
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = MaterialTheme.colors.onPrimary
+                ),
+            ) {
+                Text(
+                    text = stringResource(id = R.string.register),
+                    color = Color.White,
+                    modifier = Modifier.padding(SpaceSmall)
+                )
+            }
+        }
+    }
+}
+
+/*
+  Spacer(modifier = Modifier.height(SpaceMedium))
         Text(
             text = stringResource(id = R.string.sex),
             color = MaterialTheme.colors.onPrimary
@@ -137,44 +190,4 @@ fun RegisterScreen(
                 modifier = Modifier.fillMaxWidth()
             )
         }
-        Spacer(modifier = Modifier.height(SpaceLarge))
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(SpaceSmall),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Button(
-                onClick = {
-                    navController.popBackStack()
-                },
-                shape = MaterialTheme.shapes.medium,
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = MaterialTheme.colors.onPrimary
-                )
-            ) {
-                Text(
-                    text = stringResource(id = R.string.back),
-                    color = Color.White,
-                    modifier = Modifier.padding(SpaceSmall)
-                )
-            }
-            Button(
-                onClick = {
-                    // viewModel.setDatBirthDay(EMPTY_BIRT_DAY)
-                },
-                shape = MaterialTheme.shapes.medium,
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = MaterialTheme.colors.onPrimary
-                ),
-            ) {
-                Text(
-                    text = stringResource(id = R.string.register),
-                    color = Color.White,
-                    modifier = Modifier.padding(SpaceSmall)
-                )
-            }
-        }
-    }
-}
+ */

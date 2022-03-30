@@ -25,4 +25,5 @@
     <string name="search">Search</string>
     <string name="icon_user">IconUser</string>
     <string name="you">You: </string>
+    <string name="hint_username">Username</string>
 </resources>

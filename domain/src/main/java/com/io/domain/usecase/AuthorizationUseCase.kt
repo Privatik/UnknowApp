@@ -12,10 +12,19 @@ class AuthorizationUseCase(
     private val repository: LoginRepository
 ) {
 
-    operator fun invoke(email: String, password: String): Flow<Resource<User>> = flow{
+    operator fun invoke(
+        email: String,
+        password: String,
+        userName: String? = null,
+        isRegister: Boolean = false
+    ): Flow<Resource<User>> = flow{
         try {
             emit(Resource.Loading)
-            val user = repository.logIn(email, password)
+            val user = if (isRegister){
+                repository.register(userName!!, email, password)
+            } else {
+                repository.logIn(email, password)
+            }
             emit(Resource.Success<User>(user))
         } catch (e: IOException){
             emit(Resource.Error(e))

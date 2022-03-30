@@ -27,7 +27,9 @@ fun StandardTextField(
     hint: String,
     error: String = "",
     maxLength: Int = 40,
+    modifier: Modifier = Modifier.fillMaxWidth(),
     backgroundColor: Color = Color.Transparent,
+    focusedIndicatorColor: Color = Color.Transparent,
     keyboardType: KeyboardType = KeyboardType.Text,
     onValueChange: (String) -> Unit = {}
 ){
@@ -39,7 +41,7 @@ fun StandardTextField(
         mutableStateOf(keyboardType == KeyboardType.Password)
     }
 
-    Column(Modifier.fillMaxWidth()) {
+    Column(modifier) {
         TextField(
             value = text,
             textStyle = MaterialTheme.typography.h3,
@@ -89,7 +91,7 @@ fun StandardTextField(
             modifier = Modifier.fillMaxWidth(),
             colors = TextFieldDefaults.textFieldColors(
                 backgroundColor = backgroundColor,
-                focusedIndicatorColor = MaterialTheme.colors.onSurface,
+                focusedIndicatorColor = focusedIndicatorColor,
                 cursorColor = MaterialTheme.colors.onSurface,
                 errorIndicatorColor = Color.Red
             )

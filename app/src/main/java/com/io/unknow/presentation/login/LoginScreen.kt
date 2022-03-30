@@ -10,6 +10,7 @@ import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -102,26 +103,35 @@ fun LoginColumn(
     viewModel: LoginViewModel,
     modifier: Modifier = Modifier
 ){
+
+    LaunchedEffect(key1 = viewModel.effect){
+        if (viewModel.effect.value.navigate != null){
+            navController.navigate(viewModel.effect.value.navigate!!)
+        }
+    }
+
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.Center
     ) {
         StandardTextField(
-            text = viewModel.emailText.value,
+            text = viewModel.state.value.email,
             hint = stringResource(R.string.hint_email),
             keyboardType = KeyboardType.Email,
             onValueChange = {
                 viewModel.setEmailText(it)
-            }
+            },
+            focusedIndicatorColor = MaterialTheme.colors.onSurface
         )
         Spacer(modifier = Modifier.height(SpaceMedium))
         StandardTextField(
-            text = viewModel.passwordText.value,
+            text = viewModel.state.value.password,
             hint = stringResource(R.string.hint_password),
             keyboardType = KeyboardType.Password,
             onValueChange = {
                 viewModel.setPasswordText(it)
-            }
+            },
+            focusedIndicatorColor = MaterialTheme.colors.onSurface
         )
         Spacer(modifier = Modifier.height(SpaceLarge))
         Row(
@@ -148,9 +158,8 @@ fun LoginColumn(
             }
 
             Button(
-                onClick = {
-                    navController.navigate(Screen.PagesProfileAndListOfDialogsScreen.route)
-                },
+                onClick = viewModel::login
+                ,
                 shape = MaterialTheme.shapes.medium,
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = MaterialTheme.colors.onPrimary

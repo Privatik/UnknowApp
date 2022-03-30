@@ -6,6 +6,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
+import com.io.unknow.presentation.chat.ChatScreen
 import com.io.unknow.presentation.list_of_dialogs.ListOfDialogsScreen
 import com.io.unknow.presentation.profile.ProfileScreen
 
@@ -20,6 +21,7 @@ fun PagesProfileAndListOfDialogs(
         modifier = Modifier.fillMaxWidth()
     ) { page ->
         if (page == 0) ProfileScreen(navController)
-        else ListOfDialogsScreen(navController)
+        else ChatScreen(
+            navController = navController)
     }
 }

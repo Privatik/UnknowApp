@@ -3,11 +3,14 @@ package com.io.unknow.presentation.register
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import com.io.data.internal.repository.LoginRepositoryImpl
+import com.io.domain.usecase.AuthorizationUseCase
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
-class RegisterViewModel @Inject constructor(
-
-): ViewModel() {
+class RegisterViewModel: ViewModel() {
+    private val useCase = AuthorizationUseCase(LoginRepositoryImpl())
 
     private val _emailText = mutableStateOf("")
     val emailText: State<String> = _emailText
