@@ -1,56 +1,56 @@
 package com.io.unknow.presentation.register
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import com.io.data.internal.repository.LoginRepositoryImpl
-import com.io.domain.usecase.AuthorizationUseCase
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.update
-import javax.inject.Inject
+import androidx.lifecycle.viewModelScope
+import com.io.domain.usecase.RegisterUseCase
+import com.io.unknow.presentation.util.Screen
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 
-class RegisterViewModel: ViewModel() {
-    private val useCase = AuthorizationUseCase(LoginRepositoryImpl())
+data class RegisterState(
+    val userName: String = "",
+    val password: String = "",
+    val isLoading: Boolean = false
+)
 
-    private val _emailText = mutableStateOf("")
-    val emailText: State<String> = _emailText
+sealed class RegisterEffect{
 
-    private val _passwordText = mutableStateOf("")
-    val passwordText: State<String> = _passwordText
+    data class OnPopBack(val screen: String? = null): RegisterEffect()
+    data class OpenNextScreen(val screen: String): RegisterEffect()
 
-    private val _errorEmailText = mutableStateOf("")
-    val erroeEmailText: State<String> = _errorEmailText
+}
 
-    private val _errorPasswordText = mutableStateOf("")
-    val erroePasswordText: State<String> = _errorPasswordText
+class RegisterViewModel(
+    private val registerUseCase: RegisterUseCase = RegisterUseCase()
+): ViewModel() {
 
-    private val _sexRation = mutableStateOf(com.io.domain.state.Sex.MAN)
-    val sexRation: State<com.io.domain.state.Sex> = _sexRation
+    private val _state = MutableStateFlow(RegisterState())
+    val state: StateFlow<RegisterState> = _state.asStateFlow()
 
-    private val _birthDayText = mutableStateOf("")
-    val birthDayText: State<String> = _birthDayText
+    private val _effect = MutableSharedFlow<RegisterEffect>()
+    val effect: SharedFlow<RegisterEffect> = _effect.asSharedFlow()
 
-    fun setEmailText(email: String){
-        _emailText.value = email
+    fun setUserName(userName: String) = viewModelScope.launch {
+        _state.emit(_state.value.copy(userName = userName))
     }
 
-    fun setPasswordText(password: String) {
-        _passwordText.value = password
+    fun setPassword(password: String) = viewModelScope.launch {
+        _state.emit(_state.value.copy(password = password))
     }
 
-    fun setSexRation(sex: com.io.domain.state.Sex){
-        _sexRation.value = sex
+    fun onBack() = viewModelScope.launch{
+        _effect.emit(RegisterEffect.OnPopBack())
     }
 
-    fun setDatBirthDay(date:String){
-        _birthDayText.value = date
-    }
+    fun register() = viewModelScope.launch {
+        _state.emit(_state.value.copy(isLoading = true))
 
-    fun setErrorEmailText(error: String){
-        _errorEmailText.value = error
-    }
+        registerUseCase.invoke(state.value.userName, state.value.password)
+            .onSuccess {
+                _effect.emit(RegisterEffect.OpenNextScreen(Screen.ChatScreen.route))
+            }
+            .onFailure {}
 
-    fun setErrorPasswordText(error: String){
-        _errorEmailText.value = error
+        _state.emit(_state.value.copy(isLoading = false))
     }
 }

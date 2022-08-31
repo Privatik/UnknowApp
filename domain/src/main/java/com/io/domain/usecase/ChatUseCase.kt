@@ -1,13 +1,12 @@
 package com.io.domain.usecase
 
-import com.io.domain.model.Message
-import kotlinx.coroutines.flow.MutableSharedFlow
-
+import com.io.domain.model.MessageDO
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
 class ChatUseCase {
-    val messages = MutableSharedFlow<Message>()
 
-    suspend operator fun invoke(message: Message){
-
+    operator fun invoke(): Flow<List<MessageDO>> {
+        return flowOf()
     }
 }

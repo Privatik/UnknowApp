@@ -1,23 +1,50 @@
 package com.io.unknow.presentation.chat.components
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.io.domain.model.MessageType
+import com.io.unknow.presentation.chat.MessageUI
 import com.io.unknow.presentation.ui.theme.UnknowAppTheme
-import com.io.unknow.util.Constants.MY_TEST_PICTURE
 
 @Composable
 fun Message(
     isMyMessage:Boolean,
-    message: MessageType
+    message: MessageUI
 ) {
-    Row() {
-        Box() {
-            
-        }
+    if (isMyMessage){
+
+    } else {
+
+    }
+}
+
+@Composable
+private fun MyMessage(message: MessageUI){
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(text = message.message)
+        Text(
+            text = message.time.toString(),
+            modifier = Modifier.align(Alignment.End)
+        )
+    }
+}
+
+@Composable
+private fun OtherMessage(message: MessageUI){
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(text = message.message)
+        Text(
+            text = message.time.toString(),
+            modifier = Modifier.align(Alignment.Start)
+        )
     }
 }
 
@@ -27,7 +54,7 @@ fun PreviewMyTextMessage(){
     UnknowAppTheme {
         Message(
             isMyMessage = true,
-            message = MessageType.TextType("Hello")
+            message = MessageUI("", "Hello", 1111111)
         )
     }
 }
@@ -38,7 +65,7 @@ fun PreviewYouTextMessage(){
     UnknowAppTheme {
         Message(
             isMyMessage = false,
-            message = MessageType.TextType("Hello")
+            message = MessageUI("", "Hello", 1111111)
         )
     }
 }
@@ -49,7 +76,7 @@ fun PreviewMyPictureMessage(){
     UnknowAppTheme {
         Message(
             isMyMessage = true,
-            message = MessageType.PictureType(MY_TEST_PICTURE)
+            message = MessageUI("", "Hello", 1111111)
         )
     }
 }
@@ -60,7 +87,7 @@ fun PreviewYouPictureMessage(){
     UnknowAppTheme {
         Message(
             isMyMessage = false,
-            message = MessageType.PictureType(MY_TEST_PICTURE)
+            message = MessageUI("", "Hello", 1111111)
         )
     }
 }

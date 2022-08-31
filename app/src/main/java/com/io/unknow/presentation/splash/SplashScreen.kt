@@ -14,14 +14,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavController
+import com.io.unknow.Constants
 import com.io.unknow.R
 import com.io.unknow.presentation.util.Screen
-import com.io.unknow.util.Constants
 import kotlinx.coroutines.delay
 
 @Composable
 fun SplashScreen(
-    navController: NavController
+    openNextScreen:(String) -> Unit
 ){
     val scale = remember {
         Animatable(0f)
@@ -40,8 +40,7 @@ fun SplashScreen(
             )
         )
         delay(Constants.SPLASH_SCREEN_DURATION)
-        navController.popBackStack()
-        navController.navigate(Screen.LoginScreen.route)
+        openNextScreen(Screen.LoginScreen.route)
     }
     Box(
         modifier = Modifier.fillMaxSize(),
