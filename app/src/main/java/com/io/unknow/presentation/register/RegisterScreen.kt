@@ -78,7 +78,7 @@ fun RegisterScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Button(
-                onClick = { onBack(null) },
+                onClick = viewModel::actionOnBack,
                 shape = MaterialTheme.shapes.medium,
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = MaterialTheme.colors.onPrimary
@@ -91,7 +91,7 @@ fun RegisterScreen(
                 )
             }
             Button(
-                onClick = {},
+                onClick = viewModel::actionRegister,
                 shape = MaterialTheme.shapes.medium,
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = MaterialTheme.colors.onPrimary

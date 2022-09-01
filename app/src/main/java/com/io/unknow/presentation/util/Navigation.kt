@@ -14,6 +14,7 @@ import com.io.unknow.presentation.splash.SplashScreen
 fun Navigation(){
     val navController = rememberNavController()
 
+
     NavHost(
         navController = navController,
         startDestination = Screen.ChatScreen.route){
@@ -33,11 +34,24 @@ fun Navigation(){
             )
         }
         composable(Screen.RegisterScreen.route){
-            RegisterScreen(navController = navController)
+            RegisterScreen(
+                onBack = {
+                    if (it == null){
+                        navController.popBackStack()
+                    }
+                },
+                openNextScreen = {
+                    navController.navigate(it)
+                }
+            )
         }
 
         composable(Screen.ChatScreen.route){
-            ChatScreen(navController = navController)
+            ChatScreen(
+                onExit = {
+                    navController.popBackStack()
+                }
+            )
         }
 
     }

@@ -37,7 +37,7 @@ class LoginViewModel(
         _state.emit(_state.value.copy(password = password))
     }
 
-    fun login() = viewModelScope.launch {
+    fun actionLogin() = viewModelScope.launch {
         _state.emit(_state.value.copy(isLoading = true))
 
         loginUseCase(userName = state.value.email, password = state.value.password)
@@ -52,7 +52,7 @@ class LoginViewModel(
         _state.emit(_state.value.copy(isLoading = false))
     }
 
-    fun register() = viewModelScope.launch {
+    fun actionRegister() = viewModelScope.launch {
         _effect.emit(LoginEffect(navigate = Screen.RegisterScreen.route))
     }
 }

@@ -5,30 +5,36 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.*
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Send
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
-import androidx.navigation.NavController
 import com.google.accompanist.insets.navigationBarsWithImePadding
 import com.google.accompanist.insets.statusBarsPadding
 import com.io.unknow.presentation.chat.components.Message
+import com.io.unknow.presentation.chat.model.MessageUI
 import com.io.unknow.presentation.components.StandardTextField
-import com.io.unknow.presentation.register.RegisterViewModel
 import com.io.unknow.presentation.ui.theme.SpaceMedium
-import com.io.unknow.presentation.util.Screen
+import com.io.unknow.presentation.util.factory
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 @Composable
 fun ChatScreen(
     onExit:() -> Unit,
-    viewModel: ChatViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+    viewModel: ChatViewModel =
+        androidx.lifecycle.viewmodel.compose.viewModel(factory = factory(ChatViewModel(id = "")))
 ){
     val state by viewModel.state.collectAsState()
     val lazyScrollState = rememberLazyListState()
@@ -44,6 +50,7 @@ fun ChatScreen(
 
     Column(
         modifier = Modifier
+            .background(MaterialTheme.colors.primary)
             .statusBarsPadding()
             .navigationBarsWithImePadding()
             .fillMaxSize()
@@ -54,10 +61,10 @@ fun ChatScreen(
                 .background(MaterialTheme.colors.primary),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = {  }) {
+            IconButton(onClick = viewModel::actionReturn) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "add")
+                    contentDescription = "returnToLogicScreen")
             }
             Spacer(modifier = Modifier.width(SpaceMedium))
             Text(
@@ -65,13 +72,19 @@ fun ChatScreen(
                 text = "test"
             )
         }
-        LazyColumn(
-            modifier = Modifier.weight(1f),
-            state = lazyScrollState,
-            reverseLayout = true
-        ){
-            items(state.messages){
-                Message(isMyMessage = true, message = )
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .background(MaterialTheme.colors.background)
+        ) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                state = lazyScrollState,
+                reverseLayout = true
+            ){
+                items(state.messages){
+                    Message(isMyMessage = true, message = MessageUI("", "Hello", 11111))
+                }
             }
         }
         Row(

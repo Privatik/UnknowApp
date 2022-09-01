@@ -9,3 +9,5 @@ rootProject.name = "UnknowApp"
 include ':app'
 include ':domain'
 include ':data'
+include ':utils:pagination:android'
+include ':utils:pagination:common'

@@ -87,7 +87,7 @@ fun LoginScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Button(
-                    onClick = viewModel::login,
+                    onClick = viewModel::actionLogin,
                     shape = MaterialTheme.shapes.medium,
                     colors = ButtonDefaults.buttonColors(
                         backgroundColor = MaterialTheme.colors.onPrimary
@@ -101,7 +101,7 @@ fun LoginScreen(
                 }
 
                 Button(
-                    onClick = viewModel::register,
+                    onClick = viewModel::actionRegister,
                     shape = MaterialTheme.shapes.medium,
                     colors = ButtonDefaults.buttonColors(
                         backgroundColor = MaterialTheme.colors.onPrimary

@@ -38,11 +38,11 @@ class RegisterViewModel(
         _state.emit(_state.value.copy(password = password))
     }
 
-    fun onBack() = viewModelScope.launch{
+    fun actionOnBack() = viewModelScope.launch{
         _effect.emit(RegisterEffect.OnPopBack())
     }
 
-    fun register() = viewModelScope.launch {
+    fun actionRegister() = viewModelScope.launch {
         _state.emit(_state.value.copy(isLoading = true))
 
         registerUseCase.invoke(state.value.userName, state.value.password)

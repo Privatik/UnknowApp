@@ -5,6 +5,7 @@
       <module name="UnknowApp.app" target="11" />
       <module name="UnknowApp.core.data" target="11" />
       <module name="UnknowApp.data" target="11" />
+      <module name="UnknowApp.utils.pagination.android" target="11" />
     </bytecodeTargetLevel>
   </component>
 </project>

@@ -53,6 +53,7 @@ fun StandardTextField(
             placeholder = {
                 Text(
                     text = hint,
+                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.5f),
                     style = MaterialTheme.typography.body1
                 )
             },

@@ -13,6 +13,10 @@
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/data" />
             <option value="$PROJECT_DIR$/domain" />
+            <option value="$PROJECT_DIR$/utils" />
+            <option value="$PROJECT_DIR$/utils/pagination" />
+            <option value="$PROJECT_DIR$/utils/pagination/android" />
+            <option value="$PROJECT_DIR$/utils/pagination/common" />
           </set>
         </option>
       </GradleProjectSettings>

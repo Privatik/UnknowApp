@@ -1,4 +1,4 @@
-package com.io.unknow.presentation.chat
+package com.io.unknow.presentation.chat.model
 
 import com.io.domain.model.SendMessageDO
 

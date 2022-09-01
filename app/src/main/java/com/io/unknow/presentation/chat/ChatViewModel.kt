@@ -1,10 +1,12 @@
 package com.io.unknow.presentation.chat
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.io.domain.model.SendMessageDO
 import com.io.domain.usecase.ChatUseCase
 import com.io.domain.usecase.SendMessageUseCase
+import com.io.unknow.presentation.chat.model.MessageUI
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlin.random.Random
@@ -40,6 +42,10 @@ class ChatViewModel(
 
     fun setMessageText(text: String) = viewModelScope.launch{
         _state.emit(_state.value.copy(messageText = text))
+    }
+
+    fun actionReturn() = viewModelScope.launch{
+        _effect.emit(ChatEffect.OnBack)
     }
 
     fun sendMessage(){
