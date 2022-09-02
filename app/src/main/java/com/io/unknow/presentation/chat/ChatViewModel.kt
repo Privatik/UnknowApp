@@ -1,19 +1,20 @@
 package com.io.unknow.presentation.chat
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.io.data.paging.MessagePagination
 import com.io.domain.model.SendMessageDO
-import com.io.domain.usecase.ChatUseCase
 import com.io.domain.usecase.SendMessageUseCase
 import com.io.unknow.presentation.chat.model.MessageUI
+import io.pagination.common.PaginatorUseCase
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kotlin.random.Random
+import java.util.*
 
 data class ChatState(
     val messageText: String = "",
-    val messages: List<MessageUI> = emptyList()
+    val messages: List<MessageUI> = emptyList(),
+    val isLoadingNewMessage: Boolean = false
 )
 
 sealed class ChatEffect{
@@ -21,7 +22,7 @@ sealed class ChatEffect{
 }
 
 class ChatViewModel(
-    private val chatUseCase: ChatUseCase = ChatUseCase(),
+    private val paginatorUseCase: PaginatorUseCase<Int, List<String>> = PaginatorUseCase(MessagePagination()),
     private val sendMassageUseCase: SendMessageUseCase = SendMessageUseCase(),
     private val id: String
 ): ViewModel() {
@@ -33,11 +34,39 @@ class ChatViewModel(
     val effect: SharedFlow<ChatEffect> = _effect.asSharedFlow()
 
     init {
-        chatUseCase()
-            .onEach {
+        println("Paging ini")
+        initPage()
+        listenerLoadPage()
+    }
 
+    private fun initPage() = viewModelScope.launch{
+        paginatorUseCase.actionRefresh(1)
+    }
+
+    private fun listenerLoadPage(){
+        paginatorUseCase.data
+            .onEach {
+                if (it.isSuccess){
+                    val list = it.getOrDefault(emptyList())
+                    val oldMessage = _state.value.messages
+                    _state.emit(
+                        _state.value.copy(messages = oldMessage + list.map { text ->
+                            MessageUI(UUID.randomUUID().toString(), text,1111)
+                        })
+                    )
+                }
             }
             .launchIn(viewModelScope)
+    }
+
+    fun actionLoadNextPage() = viewModelScope.launch {
+        _state.emit(_state.value.copy(isLoadingNewMessage = true))
+        paginatorUseCase.actionLoadNext()
+        _state.emit(_state.value.copy(isLoadingNewMessage = false))
+    }
+
+    fun actionLoadPreviousPage() = viewModelScope.launch {
+        paginatorUseCase.actionLoadPrevious()
     }
 
     fun setMessageText(text: String) = viewModelScope.launch{

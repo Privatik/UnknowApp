@@ -6,6 +6,4 @@ import kotlinx.coroutines.flow.Flow
 interface ChatRepository {
     val messagesFLow: Flow<List<MessageDTO>>
 
-    fun
-
 }

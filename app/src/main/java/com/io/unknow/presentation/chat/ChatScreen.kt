@@ -4,11 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
@@ -19,25 +15,29 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import com.google.accompanist.insets.navigationBarsWithImePadding
 import com.google.accompanist.insets.statusBarsPadding
 import com.io.unknow.presentation.chat.components.Message
-import com.io.unknow.presentation.chat.model.MessageUI
 import com.io.unknow.presentation.components.StandardTextField
 import com.io.unknow.presentation.ui.theme.SpaceMedium
 import com.io.unknow.presentation.util.factory
+import io.pagination.common.rememberPagingLazyListState
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 @Composable
 fun ChatScreen(
     onExit:() -> Unit,
-    viewModel: ChatViewModel =
-        androidx.lifecycle.viewmodel.compose.viewModel(factory = factory(ChatViewModel(id = "")))
+    viewModel: ChatViewModel,
 ){
     val state by viewModel.state.collectAsState()
-    val lazyScrollState = rememberLazyListState()
+    val lazyScrollState = rememberPagingLazyListState(
+        nextPageLoading = viewModel::actionLoadNextPage,
+        previousPageLoading = viewModel::actionLoadPreviousPage
+    )
 
     LaunchedEffect(Unit){
         viewModel.effect
@@ -80,10 +80,22 @@ fun ChatScreen(
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 state = lazyScrollState,
+                horizontalAlignment = Alignment.CenterHorizontally,
                 reverseLayout = true
             ){
-                items(state.messages){
-                    Message(isMyMessage = true, message = MessageUI("", "Hello", 11111))
+                items(
+                    items = state.messages,
+                    key = { it.id }
+                ) {
+                    Message(isMyMessage = false, message = it)
+                }
+                if (state.isLoadingNewMessage){
+                    item {
+                        CircularProgressIndicator(
+                            color = Color.White,
+                            strokeWidth = 5.dp
+                        )
+                    }
                 }
             }
         }

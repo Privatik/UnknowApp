@@ -9,6 +9,7 @@ java {
 }
 
 dependencies {
+    implementation(project(":utils:pagination:common"))
     // Coroutines
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.0'
 }

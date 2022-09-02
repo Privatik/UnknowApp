@@ -27,7 +27,7 @@ fun Message(
             contentColor = Color.DarkGray
         ){
             Path().apply {
-                moveTo(size.width / 2, size.height / 2)
+                moveTo(size.width - 20, size.height / 2)
                 lineTo(size.width, size.height / 2)
                 lineTo(size.width, size.height)
                 close()
@@ -41,7 +41,7 @@ fun Message(
             contentColor = Color.Black
         ){
             Path().apply {
-                moveTo(size.width / 2, size.height / 2)
+                moveTo(20f, size.height / 2)
                 lineTo(0f, size.height / 2)
                 lineTo(0f, size.height)
                 close()
@@ -56,6 +56,7 @@ private fun SettingMessage(
     messageUI: MessageUI,
     arrangement: Arrangement.Horizontal,
     contentColor: Color,
+    modifier: Modifier = Modifier,
     drawEndForMessage: DrawScope.() -> Unit,
 ){
     Row(
@@ -63,7 +64,7 @@ private fun SettingMessage(
         horizontalArrangement = arrangement
     ) {
         Column(
-            modifier = Modifier
+            modifier = modifier
                 .widthIn(MinWidthMessage, MaxWidthMessage)
                 .padding(bottom = PaddingSmall)
                 .padding(horizontal = PaddingPostSmall)

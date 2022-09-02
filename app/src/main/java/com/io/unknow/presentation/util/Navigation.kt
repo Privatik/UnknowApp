@@ -2,10 +2,12 @@ package com.io.unknow.presentation.util
 
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.io.unknow.presentation.chat.ChatScreen
+import com.io.unknow.presentation.chat.ChatViewModel
 import com.io.unknow.presentation.login.LoginScreen
 import com.io.unknow.presentation.register.RegisterScreen
 import com.io.unknow.presentation.splash.SplashScreen
@@ -47,10 +49,12 @@ fun Navigation(){
         }
 
         composable(Screen.ChatScreen.route){
+            val viewModel = viewModel<ChatViewModel>(factory = factory(ChatViewModel(id = "")))
             ChatScreen(
                 onExit = {
                     navController.popBackStack()
-                }
+                },
+                viewModel = viewModel
             )
         }
 
