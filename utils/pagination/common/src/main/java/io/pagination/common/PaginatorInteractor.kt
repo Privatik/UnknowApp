@@ -5,7 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 
-class PaginatorUseCase<Key: Any, B: Any>(
+open class PaginatorInteractor<Key: Any, B: Any>(
     private val worker: Paginator<Key, B>,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
