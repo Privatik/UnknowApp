@@ -6,6 +6,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.io.data.di.DataServiceLocator
 import com.io.data.repository.impl
 import com.io.unknow.presentation.chat.ChatScreen
 import com.io.unknow.presentation.chat.ChatViewModel

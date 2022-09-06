@@ -3,6 +3,7 @@ package com.io.unknow.presentation.test_screen
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.io.data.repository.TestRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
@@ -23,7 +24,11 @@ class TestViewModel(
             .launchIn(viewModelScope)
     }
 
-    fun update(text: String) = viewModelScope.launch {
+    fun update(text: String) = viewModelScope.launch(Dispatchers.IO) {
         testRepository.update(text)
+    }
+
+    fun doRequest() = viewModelScope.launch(Dispatchers.IO) {
+        testRepository.doRequest()
     }
 }

@@ -2,6 +2,7 @@ package com.io.data.di
 
 import android.util.Log
 import io.ktor.client.*
+import io.ktor.client.engine.android.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.features.*
 import io.ktor.client.features.json.*
@@ -11,9 +12,9 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.util.*
 
-@KtorExperimentalAPI
 object DataServiceLocator {
 
+    @OptIn(KtorExperimentalAPI::class)
     val client by lazy {
         HttpClient(CIO) {
             expectSuccess = true
@@ -38,17 +39,20 @@ object DataServiceLocator {
 
             install(HttpSend){
                 intercept{ call, request ->
-                    val originalCall = execute(request)
-                    if (originalCall.response.status.value !in 100..399) {
+                    Log.d("Http","$request")
+                    if (call.response.status.value !in 100..399) {
+                        Log.d("Http","do $request")
+                        request.parameter("Auth","test")
                         execute(request)
                     } else {
-                        originalCall
+                        call
                     }
                 }
             }
 
 
             install(DefaultRequest) {
+                Log.d("Http","add default body")
                 header(HttpHeaders.ContentType, ContentType.Application.Json)
             }
         }

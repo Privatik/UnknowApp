@@ -1,40 +1,42 @@
 package com.io.data.encrypted
 
+import android.util.Base64
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.MutablePreferences
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.serialization.json.Json
 
-const val bytesToStringSeparator = "_"
+const val bytesToStringSeparator = "|"
 suspend inline fun DataStore<Preferences>.secureEdit(
+    keyAlias: String,
     value: String,
     crossinline editStore: (MutablePreferences, String) -> Unit
 ) {
     edit {
-        println("Encry start code")
-        val encryptedValue = encryptData("AndroidKey", value)
-        editStore.invoke(it, encryptedValue.joinToString(bytesToStringSeparator))
-        println("Encry end code")
+        val encryptedValue = encryptData(keyAlias, value)
+        it[stringPreferencesKey("$keyAlias|iv")] = Base64.encodeToString(encryptedValue.iv, Base64.DEFAULT)
+        editStore.invoke(it, encryptedValue.encryptData.joinToString(bytesToStringSeparator))
     }
 }
 
 inline fun Flow<Preferences>.secureMap(
+    keyAlias: String,
     crossinline fetchValue: (value: Preferences) -> String?
 ): Flow<String> {
     return map {
         val value = fetchValue(it)
         if (value.isNullOrBlank()) return@map ""
 
-
         val decryptedValue = decryptData(
-            "AndroidKey",
+            keyAlias,
             value
                 .split(bytesToStringSeparator)
                 .map { listStr -> listStr.toByte() }
-                .toByteArray()
+                .toByteArray(),
+            Base64.decode(it[stringPreferencesKey("$keyAlias|iv")]!!, Base64.DEFAULT)
         )
         decryptedValue
     }

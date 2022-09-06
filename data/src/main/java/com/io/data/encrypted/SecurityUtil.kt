@@ -10,30 +10,24 @@ import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 
+class EncryptBody(
+    val iv: ByteArray,
+    val encryptData: ByteArray
+)
+
 private val provider = "AndroidKeyStore"
-private val cipher by lazy {
-    Cipher.getInstance("AES/GCM/NoPadding")
-}
-private val charset by lazy {
-    charset("UTF-8")
+private val cipher by lazy { Cipher.getInstance("AES/GCM/NoPadding") }
+private val charset by lazy { charset("UTF-8") }
+private val keyStore by lazy { KeyStore.getInstance(provider).apply { load(null) } }
+private val keyGenerator by lazy { KeyGenerator.getInstance(KEY_ALGORITHM_AES, provider) }
 
-}
-private val keyStore by lazy {
-    KeyStore.getInstance(provider).apply {
-        load(null)
-    }
-}
-private val keyGenerator by lazy {
-    KeyGenerator.getInstance(KEY_ALGORITHM_AES, provider)
-}
-
-fun encryptData(keyAlias: String, text: String): ByteArray {
+fun encryptData(keyAlias: String, text: String): EncryptBody {
     cipher.init(Cipher.ENCRYPT_MODE, generateSecretKey(keyAlias))
-    return cipher.doFinal(text.toByteArray(charset))
+    return EncryptBody(iv = cipher.iv, encryptData = cipher.doFinal(text.toByteArray(charset)))
 }
 
-fun decryptData(keyAlias: String, encryptedData: ByteArray): String {
-    cipher.init(Cipher.DECRYPT_MODE, getSecretKey(keyAlias), GCMParameterSpec(128, cipher.iv))
+fun decryptData(keyAlias: String, encryptedData: ByteArray, iv: ByteArray): String {
+    cipher.init(Cipher.DECRYPT_MODE, getSecretKey(keyAlias), GCMParameterSpec(128, iv))
     return cipher.doFinal(encryptedData).toString(charset)
 }
 
@@ -51,3 +45,4 @@ private fun generateSecretKey(keyAlias: String): SecretKey {
 
 private fun getSecretKey(keyAlias: String) =
     (keyStore.getEntry(keyAlias, null) as KeyStore.SecretKeyEntry).secretKey
+

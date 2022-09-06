@@ -1,6 +1,7 @@
 package com.io.unknow.presentation.test_screen
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
@@ -20,6 +21,10 @@ fun TestScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Button(onClick = viewModel::doRequest) {
+            Text(text = "Do request")
+        }
+        Spacer(modifier = Modifier.height(20.dp))
         Text(text = state)
         Spacer(modifier = Modifier.height(20.dp))
         TextField(
