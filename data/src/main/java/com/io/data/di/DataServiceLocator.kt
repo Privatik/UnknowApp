@@ -39,10 +39,7 @@ object DataServiceLocator {
 
             install(HttpSend){
                 intercept{ call, request ->
-                    Log.d("Http","$request")
-                    if (call.response.status.value !in 100..399) {
-                        Log.d("Http","do $request")
-                        request.parameter("Auth","test")
+                    if (call.response.status.value == 401) {
                         execute(request)
                     } else {
                         call
@@ -52,7 +49,6 @@ object DataServiceLocator {
 
 
             install(DefaultRequest) {
-                Log.d("Http","add default body")
                 header(HttpHeaders.ContentType, ContentType.Application.Json)
             }
         }
