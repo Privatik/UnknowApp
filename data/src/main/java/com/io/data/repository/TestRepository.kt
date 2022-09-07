@@ -31,12 +31,13 @@ class TestRepositoryImpl(
 ): TestRepository{
     override val textFlow: Flow<String> = dataStore
         .data
-        .secureMap("AndroidKey") { it[KeyForRefreshToken].orEmpty() }
+        .secureMap(keyAlias = "AndroidKey", keyIv = "AndroidIv") { it[KeyForRefreshToken].orEmpty() }
         .distinctUntilChanged()
 
     override suspend fun update(text: String) {
         dataStore.secureEdit(
             keyAlias = "AndroidKey",
+            keyIv = "AndroidIv",
             value = text,
             editStore = { preference, encryptedValue ->
                 preference[KeyForRefreshToken] = encryptedValue

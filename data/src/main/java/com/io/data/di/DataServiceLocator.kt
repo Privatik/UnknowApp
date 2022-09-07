@@ -2,7 +2,6 @@ package com.io.data.di
 
 import android.util.Log
 import io.ktor.client.*
-import io.ktor.client.engine.android.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.features.*
 import io.ktor.client.features.json.*
@@ -27,6 +26,7 @@ object DataServiceLocator {
                 })
             }
 
+
             install(Logging) {
                 logger = object : Logger {
                     override fun log(message: String) {
@@ -39,6 +39,7 @@ object DataServiceLocator {
 
             install(HttpSend){
                 intercept{ call, request ->
+                    println("HttpSend")
                     if (call.response.status.value == 401) {
                         execute(request)
                     } else {
