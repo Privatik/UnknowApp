@@ -9,36 +9,30 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-const val bytesToStringSeparator = "|"
 suspend inline fun DataStore<Preferences>.secureEdit(
+    cryptoManager: CryptoManager,
     keyAlias: String,
-    keyIv: String,
     value: String,
     crossinline editStore: (MutablePreferences, String) -> Unit
 ) {
     edit {
-        val encryptedValue = encryptData(keyAlias, value)
-        it[stringPreferencesKey(keyIv)] = Base64.encodeToString(encryptedValue.iv, Base64.DEFAULT)
-        editStore.invoke(it, encryptedValue.encryptData.joinToString(bytesToStringSeparator))
+        val encryptedValue = cryptoManager.encryptData(keyAlias, value)
+        editStore.invoke(it, encryptedValue)
     }
 }
 
 inline fun Flow<Preferences>.secureMap(
+    cryptoManager: CryptoManager,
     keyAlias: String,
-    keyIv: String,
     crossinline fetchValue: (value: Preferences) -> String?
 ): Flow<String> {
     return map {
         val value = fetchValue(it)
         if (value.isNullOrBlank()) return@map ""
 
-        val decryptedValue = decryptData(
+        val decryptedValue = cryptoManager.decryptData(
             keyAlias,
             value
-                .split(bytesToStringSeparator)
-                .map { listStr -> listStr.toByte() }
-                .toByteArray(),
-            Base64.decode(it[stringPreferencesKey(keyIv)]!!, Base64.DEFAULT)
         )
         decryptedValue
     }

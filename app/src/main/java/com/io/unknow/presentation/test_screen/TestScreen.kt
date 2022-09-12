@@ -21,15 +21,34 @@ fun TestScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Button(onClick = viewModel::doRequest) {
-            Text(text = "Do request")
-        }
-        Spacer(modifier = Modifier.height(20.dp))
-        Text(text = state)
+        Text(text = state.stateDescription)
         Spacer(modifier = Modifier.height(20.dp))
         TextField(
-            value = state,
-            onValueChange = viewModel::update
+            value = state.email,
+            placeholder = {
+                Text(text = "Email")
+            },
+            onValueChange = viewModel::updateEmail
         )
+        Spacer(modifier = Modifier.height(20.dp))
+        TextField(
+            value = state.password,
+            placeholder = {
+                Text(text = "Password")
+            },
+            onValueChange = viewModel::updatePassword
+        )
+        Spacer(modifier = Modifier.height(20.dp))
+        TextField(
+            value = state.nickname,
+            placeholder = {
+                Text(text = "NickName")
+            },
+            onValueChange = viewModel::updateNickName
+        )
+        Spacer(modifier = Modifier.height(20.dp))
+        Button(onClick = viewModel::doAuth) {
+            Text(text = "Auth")
+        }
     }
 }

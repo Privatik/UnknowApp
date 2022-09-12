@@ -4,10 +4,12 @@ import android.util.Log
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.features.*
+import io.ktor.client.features.auth.*
 import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
 import io.ktor.client.features.logging.*
 import io.ktor.client.request.*
+import io.ktor.client.request.forms.*
 import io.ktor.http.*
 import io.ktor.util.*
 
@@ -26,6 +28,13 @@ object DataServiceLocator {
                 })
             }
 
+            install(HttpSend){
+                intercept { call, builder ->
+                    builder.headers
+                    call
+                }
+            }
+
 
             install(Logging) {
                 logger = object : Logger {
@@ -37,20 +46,11 @@ object DataServiceLocator {
                 level = LogLevel.ALL
             }
 
-            install(HttpSend){
-                intercept{ call, request ->
-                    println("HttpSend")
-                    if (call.response.status.value == 401) {
-                        execute(request)
-                    } else {
-                        call
-                    }
-                }
-            }
-
-
             install(DefaultRequest) {
-                header(HttpHeaders.ContentType, ContentType.Application.Json)
+                Log.d("Logger Ktor =>", "Default")
+                if (!(body is FormDataContent || body is MultiPartFormDataContent)) {
+                    header(HttpHeaders.ContentType, ContentType.Application.Json)
+                }
             }
         }
     }
