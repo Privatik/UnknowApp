@@ -8,6 +8,7 @@ import androidx.datastore.preferences.preferencesDataStore
 
 private const val PreferencesName = "TestDevice"
 internal val KeyForRefreshToken = stringPreferencesKey("refresh-token")
+internal val KeyForUserId = stringPreferencesKey("userId")
 
 val Context.userPreferencesDataStore: DataStore<Preferences> by preferencesDataStore(
     name = PreferencesName

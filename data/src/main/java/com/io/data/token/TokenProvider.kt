@@ -4,5 +4,5 @@ import io.ktor.http.*
 
 interface TokenProvider {
     suspend fun updateToken(token: String?)
-    suspend fun addTokenInHeader(headers: HeadersBuilder)
+    suspend fun getToken(): String?
 }

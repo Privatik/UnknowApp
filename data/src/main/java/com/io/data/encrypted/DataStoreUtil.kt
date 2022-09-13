@@ -16,8 +16,12 @@ suspend inline fun DataStore<Preferences>.secureEdit(
     crossinline editStore: (MutablePreferences, String) -> Unit
 ) {
     edit {
-        val encryptedValue = cryptoManager.encryptData(keyAlias, value)
-        editStore.invoke(it, encryptedValue)
+        if (value.isBlank()) {
+            editStore.invoke(it, "")
+        } else {
+            val encryptedValue = cryptoManager.encryptData(keyAlias, value)
+            editStore.invoke(it, encryptedValue)
+        }
     }
 }
 
