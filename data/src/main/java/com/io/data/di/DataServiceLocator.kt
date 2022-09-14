@@ -4,21 +4,14 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 import com.io.data.encrypted.CryptoManager
-import com.io.data.remote.CustomDefaultRequest
-import com.io.data.remote.Token
-import com.io.data.remote.model.RefreshRequest
-import com.io.data.remote.model.TokenResponse
-import com.io.data.remote.requestAndConvertToResult
-import com.io.data.remote.updateJWTToken
+import com.io.data.remote.JWTToken
 import com.io.data.storage.userPreferencesDataStore
 import com.io.data.token.JWTAccessTokenProvider
 import com.io.data.token.JWTRefreshTokenProvider
 import com.io.data.token.JWTTokenManager
 import io.ktor.client.*
-import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.features.*
-import io.ktor.client.features.auth.*
 import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
 import io.ktor.client.features.logging.*
@@ -26,15 +19,24 @@ import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.http.*
 import io.ktor.util.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.coroutineScope
 
-@SuppressLint("StaticFieldLeak")
-object DataServiceLocator {
-    var context: Context? = null
+class DataServiceLocator private constructor(
+    private val context: Context
+){
     val baseApi = "http://10.0.2.2:9000"
 
-    @OptIn(KtorExperimentalAPI::class)
+    companion object {
+        private var service: DataServiceLocator? = null
+
+        fun instance(context: Context): DataServiceLocator{
+            if (service == null){
+                service = DataServiceLocator(context.applicationContext)
+            }
+            return service!!
+        }
+    }
+
+    @KtorExperimentalAPI
     val client by lazy {
         HttpClient(CIO) {
             expectSuccess = true
@@ -47,20 +49,24 @@ object DataServiceLocator {
                 })
             }
 
-            install(HttpSend){
-                intercept { call, builder ->
-                    if (call.response.status.value == 401){
-                        val newAccessToken = jwtTokenManager.updateToken(
-                            call.client!!,
-                            builder.headers[HttpHeaders.Authorization]
-                        ) ?: return@intercept call
-                        builder.updateJWTToken(newAccessToken)
-                        execute(builder)
-                    } else {
-                        call
-                    }
+            install(JWTToken){
+                tokenManager = jwtTokenManager
+                urlEncodedPathWithOutToken = setOf(
+                    "/api/user/create"
+                )
+                urlEncodedPathWithRefreshToken = setOf(
+                    "/api/refresh_token"
+                )
+            }
+
+            install(HttpSend) {
+                intercept { httpClientCall, httpRequestBuilder ->
+                    Log.d("Ktor","start httpsSend load ${httpRequestBuilder.body}")
+                    httpClientCall
                 }
             }
+
+
 
 
             install(Logging) {
@@ -73,33 +79,20 @@ object DataServiceLocator {
                 level = LogLevel.ALL
             }
 
-            install(CustomDefaultRequest) {
-                modification { builder ->
-                    builder.apply {
-                        if (!(body is FormDataContent || body is MultiPartFormDataContent)) {
-                            header(HttpHeaders.ContentType, ContentType.Application.Json)
-                        }
-                        when (attributes.getOrNull(AttributeKey<Token>("Token"))){
-                            Token.ACCESS -> {
-                                updateJWTToken(accessTokenProvider.getToken()!!)
-                            }
-                            Token.REFRESH -> {
-                                updateJWTToken(refreshTokenProvider.getToken()!!)
-                            }
-                            Token.NONE,
-                            null -> {}
-                        }
-                    }
+            install(DefaultRequest) {
+                if (!(body is FormDataContent || body is MultiPartFormDataContent)) {
+                    header(HttpHeaders.ContentType, ContentType.Application.Json)
                 }
             }
         }
     }
 
-    private val dataStore = context!!.userPreferencesDataStore
+    private val dataStore = context.userPreferencesDataStore
     private val accessTokenProvider = JWTAccessTokenProvider()
     private val refreshTokenProvider = JWTRefreshTokenProvider(dataStore, CryptoManager())
 
-    private val jwtTokenManager = JWTTokenManager(
+    val jwtTokenManager = JWTTokenManager(
+        baseApi,
         accessTokenProvider,
         refreshTokenProvider,
         dataStore

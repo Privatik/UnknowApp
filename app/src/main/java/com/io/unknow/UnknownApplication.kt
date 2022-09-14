@@ -7,6 +7,5 @@ class UnknownApplication: Application() {
 
     override fun onCreate() {
         super.onCreate()
-        DataServiceLocator.context = this
     }
 }

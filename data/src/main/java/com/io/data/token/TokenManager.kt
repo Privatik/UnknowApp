@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalCoroutinesApi::class)
-
 package com.io.data.token
 
 import androidx.datastore.core.DataStore
@@ -28,16 +26,34 @@ import kotlin.coroutines.EmptyCoroutineContext
 
 interface TokenManager<C> {
 
+    suspend fun updateTokens(accessToken: String?, refreshToken: String?)
+    suspend fun getAccessToken(): String?
+    suspend fun getRefreshToken(): String?
+
     suspend fun updateToken(client: C, oldToken: String?): String?
 }
 
 class JWTTokenManager(
+    private val baseApi: String,
     private val accessTokenProvider: TokenProvider,
     private val refreshTokenProvider: TokenProvider,
     private val dataStore: DataStore<Preferences>
 ) : TokenManager<HttpClient>{
     private var channel: SendChannel<Action>? = null
     private val mutex = Mutex()
+
+    override suspend fun updateTokens(accessToken: String?, refreshToken: String?) {
+        accessTokenProvider.updateToken(accessToken)
+        refreshTokenProvider.updateToken(refreshToken)
+    }
+
+    override suspend fun getAccessToken(): String? {
+        return accessTokenProvider.getToken()
+    }
+
+    override suspend fun getRefreshToken(): String? {
+        return refreshTokenProvider.getToken()
+    }
 
     override suspend fun updateToken(client: HttpClient, oldToken: String?): String? {
         checkOnInit()
@@ -74,8 +90,7 @@ class JWTTokenManager(
                         accessTokenProvider.updateToken(null)
 
                         val token: Result<TokenResponse> = action.client.requestAndConvertToResult(
-                            urlString = "${DataServiceLocator.baseApi}/api/refresh_token",
-                            attributes = mapOf(AttributeKey<Token>("Token") to Token.REFRESH),
+                            urlString = "${baseApi}/api/refresh_token",
                             method = HttpMethod.Post
                         ){
                             body = RefreshRequest(

@@ -1,5 +1,6 @@
 package com.io.data.token
 
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import com.io.data.encrypted.CryptoManager
@@ -15,14 +16,17 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.coroutines.coroutineContext
 
 class JWTAccessTokenProvider(): TokenProvider {
     private val mutex = Mutex()
     private var channel: SendChannel<Action>? = null
 
-    override suspend fun updateToken(token: String?): Unit = withContext(EmptyCoroutineContext) {
+    override suspend fun updateToken(token: String?) {
+        Log.d("Token","updateToken ${Thread.currentThread()})")
         checkOnInit()
         channel?.send(Action.TokenSet(token))
+        Log.d("Token","updateToken is ${channel == null}")
     }
 
     override suspend fun getToken(): String?  {
@@ -36,13 +40,18 @@ class JWTAccessTokenProvider(): TokenProvider {
     }
 
 
-    private suspend fun checkOnInit() = withContext(EmptyCoroutineContext){
+    private suspend fun checkOnInit() = withContext(EmptyCoroutineContext) {
+        Log.d("Token","checkOnInit")
         if (channel == null){
+            Log.d("Token","checkOnInit channel is null")
             mutex.tryLock{
+                Log.d("Token","checkOnInit pre channel is null in lock")
                 if (channel == null){
+                    Log.d("Token","checkOnInit channel is null in lock")
                     channel = actionActor()
                 }
             }
+            Log.d("Token","checkOnInit exit from lock")
         }
     }
 
@@ -58,9 +67,11 @@ class JWTAccessTokenProvider(): TokenProvider {
         for (action in channel) {
             when(action) {
                 is Action.TokenGet -> {
+                    Log.d("Token","Get token ${token}")
                     action.deferred.complete(token)
                 }
                 is Action.TokenSet -> {
+                    Log.d("Token","Update token ${action.body}")
                     token = action.body
                 }
             }
