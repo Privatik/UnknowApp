@@ -1,6 +1,6 @@
 package com.io.data.remote
 
-import com.io.data.remote.model.LogicResponse
+import com.io.data.remote.model.LoginResponse
 import io.ktor.client.*
 import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
@@ -12,7 +12,7 @@ interface TestApi {
         email: String,
         password: String,
         nickName: String
-    ): Result<ResponseBody<LogicResponse>>
+    ): Result<ResponseBody<LoginResponse>>
 
     suspend fun checkValid(): Result<HttpResponse>
 }
@@ -25,7 +25,7 @@ class TestApiImpl(
         email: String,
         password: String,
         nickName: String
-    ): Result<ResponseBody<LogicResponse>> = client.requestAndConvertToResult(
+    ): Result<ResponseBody<LoginResponse>> = client.requestAndConvertToResult(
         urlString = "$baseApi/api/user/create",
         method = HttpMethod.Post
     ){

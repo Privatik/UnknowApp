@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.io.domain.usecase.LoginUseCase
 import com.io.unknow.presentation.util.Screen
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -37,7 +38,7 @@ class LoginViewModel(
         _state.emit(_state.value.copy(password = password))
     }
 
-    fun actionLogin() = viewModelScope.launch {
+    fun actionLogin() = viewModelScope.launch(Dispatchers.IO) {
         _state.emit(_state.value.copy(isLoading = true))
 
         loginUseCase(userName = state.value.email, password = state.value.password)

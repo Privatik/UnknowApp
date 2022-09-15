@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.io.data.paging.MessagePagination
 import com.io.domain.model.SendMessageDO
-import com.io.domain.usecase.SendMessageUseCase
+import com.io.domain.usecase.ChatInteractor
 import com.io.unknow.presentation.chat.model.MessageUI
 import io.pagination.common.PaginatorInteractor
 import kotlinx.coroutines.flow.*
@@ -23,7 +23,7 @@ sealed class ChatEffect{
 
 class ChatViewModel(
     private val paginatorUseCase: PaginatorInteractor<Int, List<String>> = PaginatorInteractor(MessagePagination()),
-    private val sendMassageUseCase: SendMessageUseCase = SendMessageUseCase(),
+    private val sendMassageUseCase: ChatInteractor = ChatInteractor(),
     private val id: String
 ): ViewModel() {
 

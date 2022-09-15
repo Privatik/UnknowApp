@@ -1,30 +1,31 @@
 package com.io.data.token
 
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import com.io.data.di.DataServiceLocator
-import com.io.data.encrypted.secureEdit
+import com.io.data.encrypted.CryptoManager
 import com.io.data.encrypted.secureMap
-import com.io.data.remote.Token
+import com.io.data.remote.ResponseBody
 import com.io.data.remote.model.RefreshRequest
 import com.io.data.remote.model.TokenResponse
 import com.io.data.remote.requestAndConvertToResult
-import com.io.data.storage.KeyForRefreshToken
 import com.io.data.storage.KeyForUserId
+import com.io.data.storage.refreshKey
+import com.io.data.storage.userIdKey
 import io.ktor.client.*
-import io.ktor.client.request.*
 import io.ktor.http.*
-import io.ktor.util.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.sync.Mutex
-import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.coroutines.CoroutineContext
 
-interface TokenManager<C> {
+interface TokenManager<C> : CoroutineScope{
 
     suspend fun updateTokens(accessToken: String?, refreshToken: String?)
     suspend fun getAccessToken(): String?
@@ -37,10 +38,13 @@ class JWTTokenManager(
     private val baseApi: String,
     private val accessTokenProvider: TokenProvider,
     private val refreshTokenProvider: TokenProvider,
-    private val dataStore: DataStore<Preferences>
+    private val dataStore: DataStore<Preferences>,
+    private val cryptoManager: CryptoManager
 ) : TokenManager<HttpClient>{
-    private var channel: SendChannel<Action>? = null
-    private val mutex = Mutex()
+
+    override val coroutineContext: CoroutineContext = Dispatchers.Default
+
+    private var channel: SendChannel<Action> = actionActor()
 
     override suspend fun updateTokens(accessToken: String?, refreshToken: String?) {
         accessTokenProvider.updateToken(accessToken)
@@ -56,21 +60,9 @@ class JWTTokenManager(
     }
 
     override suspend fun updateToken(client: HttpClient, oldToken: String?): String? {
-        checkOnInit()
-
         val deferred = CompletableDeferred<String?>()
-        channel?.send(Action.UpdateToken(client, oldToken, deferred)) ?: return null
+        channel.send(Action.UpdateToken(client, oldToken, deferred))
         return deferred.await()
-    }
-
-    private suspend fun checkOnInit() = withContext(EmptyCoroutineContext){
-        if (channel == null){
-            mutex.tryLock{
-                if (channel == null){
-                    channel = actionActor()
-                }
-            }
-        }
     }
 
     private sealed class Action{
@@ -82,23 +74,23 @@ class JWTTokenManager(
     }
 
     @OptIn(ObsoleteCoroutinesApi::class)
-    private fun CoroutineScope.actionActor() = actor<Action>{
+    private fun actionActor() = actor<Action>{
         for (action in channel) {
             when(action) {
                 is Action.UpdateToken -> {
                     if ("Bearer ${accessTokenProvider.getToken()}" == action.oldToken){
                         accessTokenProvider.updateToken(null)
 
-                        val token: Result<TokenResponse> = action.client.requestAndConvertToResult(
+                        val token: Result<ResponseBody<TokenResponse>> = action.client.requestAndConvertToResult(
                             urlString = "${baseApi}/api/refresh_token",
                             method = HttpMethod.Post
                         ){
                             body = RefreshRequest(
-                                dataStore.data.map { it[KeyForUserId].orEmpty() }.distinctUntilChanged().first()
+                                dataStore.data.secureMap(cryptoManager, userIdKey) { it[KeyForUserId].orEmpty() }.distinctUntilChanged().first()
                             )
                         }
 
-                        val updateToken = token.getOrNull() ?: kotlin.run {
+                        val updateToken = token.getOrNull()?.message ?: kotlin.run {
                             action.deferred.complete(null)
                             return@actor
                         }

@@ -53,6 +53,15 @@ fun RegisterScreen(
         verticalArrangement = Arrangement.Center,
     ) {
         StandardTextField(
+            text = state.email,
+            hint = stringResource(R.string.hint_email),
+            keyboardType = KeyboardType.Text,
+            onValueChange = {
+                viewModel.setEmail(it)
+            }
+        )
+        Spacer(modifier = Modifier.height(SpaceMedium))
+        StandardTextField(
             text = state.userName,
             hint = stringResource(R.string.hint_username),
             keyboardType = KeyboardType.Text,

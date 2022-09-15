@@ -4,10 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.io.domain.usecase.RegisterUseCase
 import com.io.unknow.presentation.util.Screen
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 data class RegisterState(
+    val email: String = "",
     val userName: String = "",
     val password: String = "",
     val isLoading: Boolean = false
@@ -30,6 +32,10 @@ class RegisterViewModel(
     private val _effect = MutableSharedFlow<RegisterEffect>()
     val effect: SharedFlow<RegisterEffect> = _effect.asSharedFlow()
 
+    fun setEmail(email: String) = viewModelScope.launch {
+        _state.emit(_state.value.copy(email = email))
+    }
+
     fun setUserName(userName: String) = viewModelScope.launch {
         _state.emit(_state.value.copy(userName = userName))
     }
@@ -42,7 +48,7 @@ class RegisterViewModel(
         _effect.emit(RegisterEffect.OnPopBack())
     }
 
-    fun actionRegister() = viewModelScope.launch {
+    fun actionRegister() = viewModelScope.launch(Dispatchers.IO) {
         _state.emit(_state.value.copy(isLoading = true))
 
         registerUseCase.invoke(state.value.userName, state.value.password)

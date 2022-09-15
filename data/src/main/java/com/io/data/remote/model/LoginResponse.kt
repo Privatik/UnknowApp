@@ -3,7 +3,7 @@ package com.io.data.remote.model
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class LogicResponse(
+data class LoginResponse(
     val tokens: TokenResponse,
     val user: UserResponse
 )

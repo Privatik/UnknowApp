@@ -3,7 +3,7 @@ package com.io.data.remote.model
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class UserResponse(
-    val id: String,
-    val userName: String,
+data class LoginRequest(
+    val email: String,
+    val password: String
 )

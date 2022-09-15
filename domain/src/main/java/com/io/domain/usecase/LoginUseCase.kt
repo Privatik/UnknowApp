@@ -1,11 +1,15 @@
 package com.io.domain.usecase
 
-class LoginUseCase {
+import com.io.domain.repository.UserRepository
+
+class LoginUseCase(
+    private val userRepository: UserRepository
+) {
 
     suspend operator fun invoke(
-        userName: String,
+        email: String,
         password: String
     ): Result<Boolean> {
-        return Result.success(true)
+        return userRepository.login(email, password)
     }
 }

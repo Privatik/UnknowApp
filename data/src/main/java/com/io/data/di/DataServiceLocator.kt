@@ -1,6 +1,7 @@
 package com.io.data.di
 
 import android.annotation.SuppressLint
+import android.app.Application
 import android.content.Context
 import android.util.Log
 import com.io.data.encrypted.CryptoManager
@@ -12,6 +13,7 @@ import com.io.data.token.JWTTokenManager
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.features.*
+import io.ktor.client.features.auth.*
 import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
 import io.ktor.client.features.logging.*
@@ -19,14 +21,22 @@ import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.http.*
 import io.ktor.util.*
+import java.lang.NullPointerException
 
 class DataServiceLocator private constructor(
-    private val context: Context
+    val context: Context
 ){
     val baseApi = "http://10.0.2.2:9000"
 
     companion object {
         private var service: DataServiceLocator? = null
+
+        fun instance(): DataServiceLocator{
+            if (service == null){
+                throw NullPointerException()
+            }
+            return service!!
+        }
 
         fun instance(context: Context): DataServiceLocator{
             if (service == null){
@@ -36,7 +46,6 @@ class DataServiceLocator private constructor(
         }
     }
 
-    @KtorExperimentalAPI
     val client by lazy {
         HttpClient(CIO) {
             expectSuccess = true
@@ -59,16 +68,6 @@ class DataServiceLocator private constructor(
                 )
             }
 
-            install(HttpSend) {
-                intercept { httpClientCall, httpRequestBuilder ->
-                    Log.d("Ktor","start httpsSend load ${httpRequestBuilder.body}")
-                    httpClientCall
-                }
-            }
-
-
-
-
             install(Logging) {
                 logger = object : Logger {
                     override fun log(message: String) {
@@ -87,14 +86,16 @@ class DataServiceLocator private constructor(
         }
     }
 
+    val cryptoManager = CryptoManager()
     private val dataStore = context.userPreferencesDataStore
     private val accessTokenProvider = JWTAccessTokenProvider()
-    private val refreshTokenProvider = JWTRefreshTokenProvider(dataStore, CryptoManager())
+    private val refreshTokenProvider = JWTRefreshTokenProvider(dataStore, cryptoManager)
 
     val jwtTokenManager = JWTTokenManager(
         baseApi,
         accessTokenProvider,
         refreshTokenProvider,
-        dataStore
+        dataStore,
+        cryptoManager
     )
 }
