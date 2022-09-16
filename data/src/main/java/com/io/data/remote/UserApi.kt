@@ -8,7 +8,7 @@ import io.ktor.client.*
 import io.ktor.client.request.forms.*
 import io.ktor.http.*
 
-fun implUserApi(client: HttpClient): UserApi{
+fun implUserApi(): UserApi{
     val instance = DataServiceLocator.instance()
     return UserApiImpl(instance.client)
 }
@@ -38,7 +38,7 @@ internal class UserApiImpl(
         email: String,
         userName: String,
         password: String
-    ): Result<ResponseBody<UserResponse>> = client.requestAndConvertToResult(
+    ): Result<ResponseBody<LoginResponse>> = client.requestAndConvertToResult(
         urlString = "${instance.baseApi}/api/user/create",
         method = HttpMethod.Post
     ){
@@ -54,15 +54,15 @@ internal class UserApiImpl(
     override suspend fun login(
         email: String,
         password: String
-    ): Result<ResponseBody<UserResponse>> = client.requestAndConvertToResult(
-        urlString = "${instance.baseApi}/login",
+    ): Result<ResponseBody<LoginResponse>> = client.requestAndConvertToResult(
+        urlString = "${instance.baseApi}/api/login",
         method = HttpMethod.Post
     ) {
         body = LoginRequest(email, password)
     }
 
     override suspend fun logout(): Result<LogoutResponse> = client.requestAndConvertToResult(
-        urlString = "${instance.baseApi}/logout",
+        urlString = "${instance.baseApi}/api/logout",
         method = HttpMethod.Get
     )
 

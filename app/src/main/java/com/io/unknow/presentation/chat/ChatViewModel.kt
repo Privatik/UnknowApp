@@ -3,15 +3,21 @@ package com.io.unknow.presentation.chat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.io.data.paging.MessagePagination
-import com.io.domain.model.SendMessageDO
+import com.io.data.remote.implMessageApi
+import com.io.data.repository.implChatRepository
+import com.io.data.repository.implUserRepository
+import com.io.domain.model.MessageDTO
+import com.io.domain.repository.UserRepository
 import com.io.domain.usecase.ChatInteractor
 import com.io.unknow.presentation.chat.model.MessageUI
+import com.io.unknow.presentation.chat.model.asUI
 import io.pagination.common.PaginatorInteractor
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import java.util.*
 
 data class ChatState(
+    val userId: String = "",
     val messageText: String = "",
     val messages: List<MessageUI> = emptyList(),
     val isLoadingNewMessage: Boolean = false
@@ -22,9 +28,11 @@ sealed class ChatEffect{
 }
 
 class ChatViewModel(
-    private val paginatorUseCase: PaginatorInteractor<Int, List<String>> = PaginatorInteractor(MessagePagination()),
-    private val sendMassageUseCase: ChatInteractor = ChatInteractor(),
-    private val id: String
+    private val paginatorUseCase: PaginatorInteractor<Int, List<MessageDTO>> = PaginatorInteractor(MessagePagination(
+        implMessageApi()
+    )),
+    private val sendMassageUseCase: ChatInteractor = ChatInteractor(implChatRepository()),
+    private val userRepository: UserRepository = implUserRepository(),
 ): ViewModel() {
 
     private val _state = MutableStateFlow(ChatState())
@@ -34,28 +42,36 @@ class ChatViewModel(
     val effect: SharedFlow<ChatEffect> = _effect.asSharedFlow()
 
     init {
-        println("Paging ini")
+        initUserId()
         initPage()
         listenerLoadPage()
     }
 
     private fun initPage() = viewModelScope.launch{
-        paginatorUseCase.actionRefresh(1)
+        paginatorUseCase.actionRefresh(0)
+    }
+
+    private fun initUserId() = viewModelScope.launch{
+        _state.emit(_state.value.copy(userId = userRepository.userId.first()))
     }
 
     private fun listenerLoadPage(){
-        paginatorUseCase.data
+        merge(paginatorUseCase.data, sendMassageUseCase.messagesFLow.map { Result.success(it) })
             .onEach {
                 if (it.isSuccess){
-                    val list = it.getOrDefault(emptyList())
+                    val list = it.getOrDefault(emptyList()).map { dto -> dto.asUI() }
                     val oldMessage = _state.value.messages
+                    val newMessage = if ((oldMessage.lastOrNull()?.time ?: -1) > (list.firstOrNull()?.time ?: -1)) {
+                        list + oldMessage
+                    } else {
+                        oldMessage + list
+                    }
                     _state.emit(
-                        _state.value.copy(messages = oldMessage + list.map { text ->
-                            MessageUI(UUID.randomUUID().toString(), text,1111)
-                        })
+                        _state.value.copy(messages = newMessage)
                     )
                 }
             }
+            .flowOn(Dispatchers.IO)
             .launchIn(viewModelScope)
     }
 
@@ -74,19 +90,12 @@ class ChatViewModel(
     }
 
     fun actionReturn() = viewModelScope.launch{
+        userRepository.logout()
         _effect.emit(ChatEffect.OnBack)
     }
 
-    fun sendMessage(){
-        viewModelScope.launch {
-            sendMassageUseCase(SendMessageDO(id, state.value.messageText))
-                .onSuccess {
-                    val oldMessages = state.value.messages
-                    _state.emit(state.value.copy(messages = (oldMessages + MessageUI("",state.value.messageText, 11)), messageText = ""))
-                }
-                .onFailure {
-
-                }
-        }
+    fun sendMessage() = viewModelScope.launch {
+        sendMassageUseCase.send(state.value.messageText)
+        _state.emit(state.value.copy(messageText = ""))
     }
 }

@@ -14,24 +14,24 @@ import java.lang.Exception
 suspend inline fun <reified T> HttpClient.requestAndConvertToResult(
     urlString: String,
     method: HttpMethod,
-    attributes: Map<AttributeKey<Any>, Any> = emptyMap(),
     block: HttpRequestBuilder.() -> Unit = {}
 ): Result<T> {
     return try {
         val response = request<T> {
             url.takeFrom(urlString)
             this.method = method
-            attributes.forEach { (key, value) -> this.attributes.put(key, value) }
             block()
         }
         Result.success(response)
     } catch (e: ResponseException){
+        Log.d("Ktor","$e")
         when (e.response.status.value){
             401 -> Result.failure(Fail.AuthFail())
             403 -> Result.failure(Fail.ForbiddenFail())
             else -> Result.failure(Fail.GlobalFail(e))
         }
     } catch (e: Exception){
+        Log.d("Ktor","$e")
         Result.failure(Fail.GlobalFail(e))
     }
 }

@@ -13,6 +13,7 @@ import com.io.unknow.presentation.chat.ChatViewModel
 import com.io.unknow.presentation.login.LoginScreen
 import com.io.unknow.presentation.register.RegisterScreen
 import com.io.unknow.presentation.splash.SplashScreen
+import com.io.unknow.presentation.splash.SplashViewModel
 import com.io.unknow.presentation.test_screen.TestScreen
 import com.io.unknow.presentation.test_screen.TestViewModel
 
@@ -26,7 +27,8 @@ fun Navigation(){
         startDestination = Screen.SplashScreen.route){
 
         composable(Screen.SplashScreen.route){
-            SplashScreen{
+            val viewModel = viewModel<SplashViewModel>(factory = factory(SplashViewModel()))
+            SplashScreen(viewModel){
                 navController.popBackStack()
                 navController.navigate(it)
             }
@@ -53,7 +55,7 @@ fun Navigation(){
         }
 
         composable(Screen.ChatScreen.route){
-            val viewModel = viewModel<ChatViewModel>(factory = factory(ChatViewModel(id = "")))
+            val viewModel = viewModel<ChatViewModel>(factory = factory(ChatViewModel()))
             ChatScreen(
                 onExit = {
                     navController.popBackStack()

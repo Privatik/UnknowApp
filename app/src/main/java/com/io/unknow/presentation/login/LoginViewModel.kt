@@ -1,7 +1,9 @@
 package com.io.unknow.presentation.login
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.io.data.repository.implUserRepository
 import com.io.domain.usecase.LoginUseCase
 import com.io.unknow.presentation.util.Screen
 import kotlinx.coroutines.Dispatchers
@@ -22,7 +24,7 @@ data class LoginState(
 )
 
 class LoginViewModel(
-    private val loginUseCase: LoginUseCase = LoginUseCase()
+    private val loginUseCase: LoginUseCase = LoginUseCase(implUserRepository())
 ): ViewModel() {
     private val _state = MutableStateFlow(LoginState())
     val state: StateFlow<LoginState> = _state.asStateFlow()
@@ -41,7 +43,7 @@ class LoginViewModel(
     fun actionLogin() = viewModelScope.launch(Dispatchers.IO) {
         _state.emit(_state.value.copy(isLoading = true))
 
-        loginUseCase(userName = state.value.email, password = state.value.password)
+        loginUseCase(email = state.value.email, password = state.value.password)
             .onSuccess {
                 _effect.emit(LoginEffect(navigate = Screen.ChatScreen.route))
             }

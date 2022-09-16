@@ -7,6 +7,6 @@ class UnknownApplication: Application() {
 
     override fun onCreate() {
         super.onCreate()
-
+        DataServiceLocator.instance(this)
     }
 }

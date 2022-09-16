@@ -2,6 +2,7 @@ package com.io.unknow.presentation.register
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.io.data.repository.implUserRepository
 import com.io.domain.usecase.RegisterUseCase
 import com.io.unknow.presentation.util.Screen
 import kotlinx.coroutines.Dispatchers
@@ -23,7 +24,7 @@ sealed class RegisterEffect{
 }
 
 class RegisterViewModel(
-    private val registerUseCase: RegisterUseCase = RegisterUseCase()
+    private val registerUseCase: RegisterUseCase = RegisterUseCase(implUserRepository())
 ): ViewModel() {
 
     private val _state = MutableStateFlow(RegisterState())
@@ -51,7 +52,7 @@ class RegisterViewModel(
     fun actionRegister() = viewModelScope.launch(Dispatchers.IO) {
         _state.emit(_state.value.copy(isLoading = true))
 
-        registerUseCase.invoke(state.value.userName, state.value.password)
+        registerUseCase.invoke(state.value.email, state.value.userName, state.value.password)
             .onSuccess {
                 _effect.emit(RegisterEffect.OpenNextScreen(Screen.ChatScreen.route))
             }

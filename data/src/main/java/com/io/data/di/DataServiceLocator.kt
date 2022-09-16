@@ -17,6 +17,7 @@ import io.ktor.client.features.auth.*
 import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
 import io.ktor.client.features.logging.*
+import io.ktor.client.features.websocket.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.http.*
@@ -26,7 +27,9 @@ import java.lang.NullPointerException
 class DataServiceLocator private constructor(
     val context: Context
 ){
-    val baseApi = "http://10.0.2.2:9000"
+    val host = "10.0.2.2"
+    val port = 9000
+    val baseApi = "http://$host:$port"
 
     companion object {
         private var service: DataServiceLocator? = null
@@ -58,10 +61,15 @@ class DataServiceLocator private constructor(
                 })
             }
 
+            install(WebSockets) {
+                pingInterval = 20_000
+            }
+
             install(JWTToken){
                 tokenManager = jwtTokenManager
                 urlEncodedPathWithOutToken = setOf(
-                    "/api/user/create"
+                    "/api/user/create",
+                    "/api/login"
                 )
                 urlEncodedPathWithRefreshToken = setOf(
                     "/api/refresh_token"
@@ -87,7 +95,7 @@ class DataServiceLocator private constructor(
     }
 
     val cryptoManager = CryptoManager()
-    private val dataStore = context.userPreferencesDataStore
+    val dataStore = context.userPreferencesDataStore
     private val accessTokenProvider = JWTAccessTokenProvider()
     private val refreshTokenProvider = JWTRefreshTokenProvider(dataStore, cryptoManager)
 

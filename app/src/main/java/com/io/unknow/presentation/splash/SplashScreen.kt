@@ -6,9 +6,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -21,8 +19,10 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun SplashScreen(
+    viewModel: SplashViewModel,
     openNextScreen:(String) -> Unit
 ){
+    val state by viewModel.isAuth.collectAsState()
     val scale = remember {
         Animatable(0f)
     }
@@ -30,6 +30,7 @@ fun SplashScreen(
         OvershootInterpolator(2f)
     }
     LaunchedEffect(key1 = true) {
+        viewModel.isAuth()
         scale.animateTo(
             targetValue = 0.8f,
             animationSpec = tween(
@@ -40,7 +41,14 @@ fun SplashScreen(
             )
         )
         delay(Constants.SPLASH_SCREEN_DURATION)
-        openNextScreen(Screen.LoginScreen.route)
+        when (state) {
+            true -> {
+                openNextScreen(Screen.ChatScreen.route)
+            }
+            false -> {
+                openNextScreen(Screen.LoginScreen.route)
+            }
+        }
     }
     Box(
         modifier = Modifier.fillMaxSize(),

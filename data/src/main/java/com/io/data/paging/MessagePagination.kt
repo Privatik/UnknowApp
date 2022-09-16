@@ -1,26 +1,50 @@
 package com.io.data.paging
 
+import android.util.Log
+import com.io.data.remote.MessageApi
+import com.io.domain.model.MessageDTO
 import io.pagination.common.KeyBody
 import io.pagination.common.Paginator
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.map
 
-class MessagePagination: Paginator<Int, List<String>> {
-    private val _data = MutableSharedFlow<List<String>>()
-    override val data: Flow<Result<List<String>>> = _data.asSharedFlow().map { Result.success(it) }
+class MessagePagination(
+    private val messageApi: MessageApi
+): Paginator<Int, List<MessageDTO>> {
+    private val _data = MutableSharedFlow<Result<List<MessageDTO>>>()
+    override val data: Flow<Result<List<MessageDTO>>>  = _data.asSharedFlow()
 
-    override suspend fun refreshPage(initPage: Int): KeyBody<Int> {
-        _data.emit((0 until 120).map { "item$it" })
-        return KeyBody(null, 4)
+    override suspend fun refreshPage(initPage: Int): KeyBody<Int>  = coroutineScope{
+        Log.d("Paginator","refreshPage")
+        val list = List(3){ index ->
+            async {
+                messageApi.getMessages(index, 20)
+            }
+        }
+
+        list.awaitAll()
+        return@coroutineScope KeyBody(null, 3)
     }
 
     override suspend fun nextPage(pagingBody: Int): Int? {
-        if (pagingBody == 10) return null
-        delay(2000)
-        _data.emit((((pagingBody * 30)) until ((pagingBody + 1) * 30)).map { "item$it" })
+        Log.d("Paginator","nextPage")
+        val list = messageApi.getMessages(pagingBody, 20)
+            .map { messages -> messages.message.map { it.asDTO() } }
+
+        _data.emit(list)
+        list
+            .onSuccess {
+                if (it.isEmpty()) { return null }
+            }
+            .onFailure {
+                return null
+            }
         return pagingBody + 1
     }
 

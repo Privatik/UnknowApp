@@ -98,7 +98,7 @@ fun PreviewMyTextMessage(){
     UnknowAppTheme {
         Message(
             isMyMessage = true,
-            message = MessageUI("", "Hello", 1111111)
+            message = MessageUI("", "Hello", "","",1111111)
         )
     }
 }
@@ -109,7 +109,7 @@ fun PreviewYouTextMessage(){
     UnknowAppTheme {
         Message(
             isMyMessage = false,
-            message = MessageUI("", "Hello World World World", 1111111)
+            message = MessageUI("", "Hello", "","",1111111)
         )
     }
 }
@@ -120,7 +120,7 @@ fun PreviewMyPictureMessage(){
     UnknowAppTheme {
         Message(
             isMyMessage = true,
-            message = MessageUI("", "Hello World World", 1111111)
+            message = MessageUI("", "Hello", "","",1111111)
         )
     }
 }
@@ -131,7 +131,7 @@ fun PreviewYouPictureMessage(){
     UnknowAppTheme {
         Message(
             isMyMessage = false,
-            message = MessageUI("", "Hello World", 1111111)
+            message = MessageUI("", "Hello", "","",1111111)
         )
     }
 }

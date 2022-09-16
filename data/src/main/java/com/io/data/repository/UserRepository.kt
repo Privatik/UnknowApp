@@ -1,14 +1,17 @@
 package com.io.data.repository
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import com.io.data.di.DataServiceLocator
 import com.io.data.encrypted.CryptoManager
 import com.io.data.encrypted.secureEdit
+import com.io.data.encrypted.secureMap
 import com.io.data.remote.UserApi
 import com.io.data.remote.UserApiImpl
+import com.io.data.remote.implUserApi
 import com.io.data.storage.*
 import com.io.data.storage.KeyForRefreshToken
 import com.io.data.storage.KeyForUserId
@@ -16,14 +19,16 @@ import com.io.data.storage.KeyForUserName
 import com.io.data.token.TokenManager
 import com.io.domain.repository.UserRepository
 import io.ktor.client.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 
 fun implUserRepository(
 ): UserRepository {
     val instance = DataServiceLocator.instance()
     return UserRepositoryImpl(
         instance.cryptoManager,
-        instance.context.userPreferencesDataStore,
-        UserApiImpl(instance.client),
+        instance.dataStore,
+        implUserApi(),
         instance.jwtTokenManager
     )
 }
@@ -35,6 +40,10 @@ internal class UserRepositoryImpl(
     private val userApi: UserApi,
     private val tokenManager: TokenManager<HttpClient>
 ):UserRepository{
+    override val userId: Flow<String>
+        get() = dataStore.data.secureMap(cryptoManager, userIdKey) { preference ->
+            preference[KeyForUserId].orEmpty()
+        }
 
     override suspend fun register(email: String, userName: String, password: String): Result<Boolean> {
         return userApi.register(email, userName, password)
@@ -70,15 +79,12 @@ internal class UserRepositoryImpl(
     }
 
     override suspend fun logout(): Result<Boolean> {
-        return userApi.logout()
-            .onSuccess { _ ->
-                dataStore.edit { preference ->
-                    preference.remove(KeyForUserName)
-                    preference.remove(KeyForUserId)
-                }
-                tokenManager.updateTokens(null, null)
-            }
-            .map { it.isSuccessful }
+        dataStore.edit { preference ->
+            preference.remove(KeyForUserName)
+            preference.remove(KeyForUserId)
+        }
+        tokenManager.updateTokens(null, null)
+        return Result.success(true)
     }
 
 }

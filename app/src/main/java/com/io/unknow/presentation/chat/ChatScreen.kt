@@ -87,7 +87,7 @@ fun ChatScreen(
                     items = state.messages,
                     key = { it.id }
                 ) {
-                    Message(isMyMessage = false, message = it)
+                    Message(isMyMessage = it.userId == state.userId, message = it)
                 }
                 if (state.isLoadingNewMessage){
                     item {
@@ -104,7 +104,7 @@ fun ChatScreen(
                 .fillMaxWidth()
                 .background(MaterialTheme.colors.primary)
         ) {
-            IconButton(onClick = {  }) {
+            IconButton(onClick = {}) {
                 Icon(
                     imageVector = Icons.Default.Add,
                     contentDescription = "add")
