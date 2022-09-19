@@ -1,16 +1,11 @@
 package com.io.data.token
 
-import android.util.Log
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import com.io.data.encrypted.CryptoManager
-import com.io.data.encrypted.secureMap
 import com.io.data.remote.ResponseBody
 import com.io.data.remote.model.RefreshRequest
 import com.io.data.remote.model.TokenResponse
 import com.io.data.remote.requestAndConvertToResult
+import com.io.data.storage.DataStorage
 import com.io.data.storage.KeyForUserId
-import com.io.data.storage.refreshKey
 import com.io.data.storage.userIdKey
 import io.ktor.client.*
 import io.ktor.http.*
@@ -20,9 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.actor
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlin.coroutines.CoroutineContext
 
 interface TokenManager<C> : CoroutineScope{
@@ -38,8 +31,7 @@ class JWTTokenManager(
     private val baseApi: String,
     private val accessTokenProvider: TokenProvider,
     private val refreshTokenProvider: TokenProvider,
-    private val dataStore: DataStore<Preferences>,
-    private val cryptoManager: CryptoManager
+    private val dataStore: DataStorage
 ) : TokenManager<HttpClient>{
 
     override val coroutineContext: CoroutineContext = Dispatchers.Default
@@ -86,7 +78,11 @@ class JWTTokenManager(
                             method = HttpMethod.Post
                         ){
                             body = RefreshRequest(
-                                dataStore.data.secureMap(cryptoManager, userIdKey) { it[KeyForUserId].orEmpty() }.distinctUntilChanged().first()
+                                dataStore.secureData(
+                                    keyAlias = userIdKey,
+                                    fetchValue = { it[KeyForUserId].orEmpty() },
+                                    mapper = {it }
+                                ).first()
                             )
                         }
 

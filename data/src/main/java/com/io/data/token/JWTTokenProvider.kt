@@ -25,14 +25,10 @@ class JWTAccessTokenProvider(): TokenProvider{
         channel.send(Action.TokenSet(token))
     }
 
-    override suspend fun getToken(): String  {
-        var answer: String? = null
-        while (answer == null) {
-            val deferred = CompletableDeferred<String?>()
-            channel.send(Action.TokenGet(deferred))
-            answer = deferred.await()
-        }
-        return answer
+    override suspend fun getToken(): String?  {
+        val deferred = CompletableDeferred<String?>()
+        channel.send(Action.TokenGet(deferred))
+        return deferred.await()
     }
 
     private sealed class Action(){
@@ -71,7 +67,7 @@ class JWTRefreshTokenProvider(
 
     override suspend fun getToken(): String?  {
         val deferred = CompletableDeferred<String?>()
-        channel.send(Action.TokenGet(deferred)) ?: return null
+        channel.send(Action.TokenGet(deferred))
         return deferred.await()
     }
 

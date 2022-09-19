@@ -52,7 +52,6 @@ public class JWTToken() {
         override fun prepare(block: JWTToken.() -> Unit): JWTToken =
             JWTToken().apply(block)
 
-        @OptIn(KtorExperimentalAPI::class)
         override fun install(feature: JWTToken, scope: HttpClient) {
             scope.requestPipeline.intercept(HttpRequestPipeline.Before) {
                 if (feature.tokenManager == null) return@intercept
@@ -64,7 +63,10 @@ public class JWTToken() {
                         context.updateJWTToken(feature.tokenManager?.getRefreshToken() ?: "")
                     }
                     else -> {
-                        context.updateJWTToken(feature.tokenManager?.getAccessToken() ?: "")
+                        val accessToken = feature.tokenManager?.getAccessToken() ?: kotlin.run {
+                            feature.tokenManager?.updateToken(scope, "Bearer ${null}") ?: ""
+                        }
+                        context.updateJWTToken(accessToken)
                     }
                 }
             }
@@ -73,7 +75,7 @@ public class JWTToken() {
                 feature.tokenManager?.let { manager ->
                     if (call.response.status.value == 401) {
                         val newAccessToken = manager.updateToken(
-                            call.client!!,
+                            scope,
                             builder.headers[HttpHeaders.Authorization]
                         ) ?: return@intercept call
 

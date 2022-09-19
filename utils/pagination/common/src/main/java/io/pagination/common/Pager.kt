@@ -2,8 +2,8 @@ package io.pagination.common
 
 import kotlinx.coroutines.flow.Flow
 
-interface Paginator<Key: Any, B: Any>{
-    val data: Flow<Result<B>>
+interface Pager<Key: Any, B: Any>{
+    val data: Flow<B>
 
     suspend fun refreshPage(initPage: Key): KeyBody<Key>
 

@@ -3,15 +3,18 @@ package io.pagination.common
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 
-open class PaginatorInteractor<Key: Any, B: Any>(
-    private val worker: Paginator<Key, B>,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+open class PagingAdapter<Key: Any, T: Any>(
+    private val worker: Pager<Key, T>,
 ) {
-    val data: Flow<Result<B>> = worker.data
     @Volatile private var keyBody: KeyBody<Key>? = null
     @Volatile private var isLoading: Boolean = false
+
+    fun <B: Any> data(mapper: suspend (T) -> B): Flow<B>{
+        return worker.data.map(mapper)
+    }
 
     suspend fun actionRefresh(initPage: Key) = loading {
         keyBody = worker.refreshPage(initPage)
@@ -31,9 +34,9 @@ open class PaginatorInteractor<Key: Any, B: Any>(
 
     private suspend inline fun loading(
         crossinline go: suspend () -> Unit
-    ) = withContext(dispatcher){
+    ) {
         if (isLoading){
-            return@withContext
+            return
         }
         isLoading = true
         go()

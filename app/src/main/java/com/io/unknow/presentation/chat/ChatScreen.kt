@@ -69,7 +69,7 @@ fun ChatScreen(
             Spacer(modifier = Modifier.width(SpaceMedium))
             Text(
                 textAlign = TextAlign.Center,
-                text = "test"
+                text = state.userId
             )
         }
         Box(

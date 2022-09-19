@@ -11,7 +11,7 @@ import com.io.domain.repository.UserRepository
 import com.io.domain.usecase.ChatInteractor
 import com.io.unknow.presentation.chat.model.MessageUI
 import com.io.unknow.presentation.chat.model.asUI
-import io.pagination.common.PaginatorInteractor
+import io.pagination.common.PagingAdapter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 data class ChatState(
     val userId: String = "",
     val messageText: String = "",
-    val messages: List<MessageUI> = emptyList(),
+    val messages: List<MessageUI> = mutableListOf(),
     val isLoadingNewMessage: Boolean = false
 )
 
@@ -28,7 +28,7 @@ sealed class ChatEffect{
 }
 
 class ChatViewModel(
-    private val paginatorUseCase: PaginatorInteractor<Int, List<MessageDTO>> = PaginatorInteractor(MessagePagination(
+    private val paginatorUseCase: PagingAdapter<Int, List<MessageDTO>> = PagingAdapter(MessagePagination(
         implMessageApi()
     )),
     private val sendMassageUseCase: ChatInteractor = ChatInteractor(implChatRepository()),
@@ -43,7 +43,7 @@ class ChatViewModel(
 
     init {
         initUserId()
-        initPage()
+//        initPage()
         listenerLoadPage()
     }
 
@@ -56,16 +56,35 @@ class ChatViewModel(
     }
 
     private fun listenerLoadPage(){
-        merge(paginatorUseCase.data, sendMassageUseCase.messagesFLow.map { Result.success(it) })
+//        paginatorUseCase.listener(
+//            scope = viewModelScope,
+//            onSuccess = {
+//                val list = it.map { dto -> dto.asUI() }
+//                val oldMessage = _state.value.messages
+//                val newMessage = if ((oldMessage.lastOrNull()?.time ?: -1) > (list.firstOrNull()?.time ?: -1)) {
+//                    list + oldMessage
+//                } else {
+//                    oldMessage + list
+//                }
+//                _state.emit(
+//                    _state.value.copy(messages = newMessage)
+//                )
+//            },
+//            onFailure = {
+//
+//            }
+//        )
+
+        sendMassageUseCase.messagesFLow.map { Result.success(it) }
             .onEach {
                 if (it.isSuccess){
                     val list = it.getOrDefault(emptyList()).map { dto -> dto.asUI() }
                     val oldMessage = _state.value.messages
                     val newMessage = if ((oldMessage.lastOrNull()?.time ?: -1) > (list.firstOrNull()?.time ?: -1)) {
-                        list + oldMessage
-                    } else {
                         oldMessage + list
-                    }
+                    } else {
+                        list + oldMessage
+                    }.toSet().toList()
                     _state.emit(
                         _state.value.copy(messages = newMessage)
                     )

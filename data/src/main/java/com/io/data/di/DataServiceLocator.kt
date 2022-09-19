@@ -6,6 +6,8 @@ import android.content.Context
 import android.util.Log
 import com.io.data.encrypted.CryptoManager
 import com.io.data.remote.JWTToken
+import com.io.data.storage.DataStorage
+import com.io.data.storage.DataStorageImpl
 import com.io.data.storage.userPreferencesDataStore
 import com.io.data.token.JWTAccessTokenProvider
 import com.io.data.token.JWTRefreshTokenProvider
@@ -49,6 +51,27 @@ class DataServiceLocator private constructor(
         }
     }
 
+    val clientWebsocket by lazy {
+        HttpClient(CIO) {
+            install(WebSockets) {
+                pingInterval = 20_000
+            }
+
+//            myJWTToken()
+
+//            install(Logging) {
+//                logger = object : Logger {
+//                    override fun log(message: String) {
+//                        Log.d("Logger Ktor WebSocket =>", message)
+//                    }
+//
+//                }
+//                level = LogLevel.ALL
+//            }
+        }
+
+    }
+
     val client by lazy {
         HttpClient(CIO) {
             expectSuccess = true
@@ -65,16 +88,7 @@ class DataServiceLocator private constructor(
                 pingInterval = 20_000
             }
 
-            install(JWTToken){
-                tokenManager = jwtTokenManager
-                urlEncodedPathWithOutToken = setOf(
-                    "/api/user/create",
-                    "/api/login"
-                )
-                urlEncodedPathWithRefreshToken = setOf(
-                    "/api/refresh_token"
-                )
-            }
+            myJWTToken()
 
             install(Logging) {
                 logger = object : Logger {
@@ -94,8 +108,22 @@ class DataServiceLocator private constructor(
         }
     }
 
-    val cryptoManager = CryptoManager()
-    val dataStore = context.userPreferencesDataStore
+    fun HttpClientConfig<CIOEngineConfig>.myJWTToken(){
+        install(JWTToken){
+            tokenManager = jwtTokenManager
+            urlEncodedPathWithOutToken = setOf(
+                "/api/user/create",
+                "/api/login"
+            )
+            urlEncodedPathWithRefreshToken = setOf(
+                "/api/refresh_token"
+            )
+        }
+    }
+
+    private val cryptoManager = CryptoManager()
+    private val dataStore = context.userPreferencesDataStore
+    val dataStorage = DataStorageImpl(dataStore, cryptoManager)
     private val accessTokenProvider = JWTAccessTokenProvider()
     private val refreshTokenProvider = JWTRefreshTokenProvider(dataStore, cryptoManager)
 
@@ -103,7 +131,6 @@ class DataServiceLocator private constructor(
         baseApi,
         accessTokenProvider,
         refreshTokenProvider,
-        dataStore,
-        cryptoManager
+        dataStorage
     )
 }

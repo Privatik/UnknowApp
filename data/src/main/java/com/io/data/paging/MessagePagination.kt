@@ -2,23 +2,23 @@ package com.io.data.paging
 
 import android.util.Log
 import com.io.data.remote.MessageApi
+import com.io.data.remote.MessageResponse
+import com.io.data.remote.ResponseBody
 import com.io.domain.model.MessageDTO
 import io.pagination.common.KeyBody
-import io.pagination.common.Paginator
+import io.pagination.common.Pager
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.map
 
 class MessagePagination(
     private val messageApi: MessageApi
-): Paginator<Int, List<MessageDTO>> {
-    private val _data = MutableSharedFlow<Result<List<MessageDTO>>>()
-    override val data: Flow<Result<List<MessageDTO>>>  = _data.asSharedFlow()
+): Pager<Int, Result<ResponseBody<List<MessageResponse>>>> {
+    private val _data = MutableSharedFlow<Result<ResponseBody<List<MessageResponse>>>>()
+    override val data: Flow<Result<ResponseBody<List<MessageResponse>>>>  = _data.asSharedFlow()
 
     override suspend fun refreshPage(initPage: Int): KeyBody<Int>  = coroutineScope{
         Log.d("Paginator","refreshPage")

@@ -6,6 +6,7 @@ import io.ktor.client.*
 import io.ktor.client.features.websocket.*
 import io.ktor.http.*
 import io.ktor.http.cio.websocket.*
+import io.ktor.network.sockets.*
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -13,19 +14,19 @@ import kotlinx.coroutines.isActive
 
 fun implMessageApi(): MessageApi{
     val instance = DataServiceLocator.instance()
-    return MessageApiImpl(instance.client)
+    return MessageApiImpl(instance.client, instance.clientWebsocket)
 }
 
 interface MessageApi {
 
-    sealed class AnswerFromMessageSocket(){
-        data class NewMessage(val id: String): AnswerFromMessageSocket(){
+    sealed class ResponseFromMessageSocket{
+        data class NewMessage(val id: String): ResponseFromMessageSocket(){
             companion object{
                 val TAG: String = "NewMessage"
             }
         }
-        object DontAuth: AnswerFromMessageSocket()
-        object Exit: AnswerFromMessageSocket()
+        object DontAuth: ResponseFromMessageSocket()
+        object Exit: ResponseFromMessageSocket()
     }
 
     suspend fun send(
@@ -34,7 +35,7 @@ interface MessageApi {
         text: String
     ): Result<ResponseBody<MessageResponse>>
 
-    fun socketMessage(): Flow<AnswerFromMessageSocket>
+    fun socketMessage(): Flow<ResponseFromMessageSocket>
 
     suspend fun getMessage(id: String): Result<ResponseBody<MessageResponse>>
 
@@ -42,7 +43,8 @@ interface MessageApi {
 }
 
 internal class MessageApiImpl(
-    private val client: HttpClient
+    private val client: HttpClient,
+    private val clientWebsocket: HttpClient
 ): MessageApi {
     private val instance = DataServiceLocator.instance()
 
@@ -57,7 +59,7 @@ internal class MessageApiImpl(
         body = MessageRequest(userId, userName, text)
     }
 
-    override fun socketMessage(): Flow<MessageApi.AnswerFromMessageSocket> = flow {
+    override fun socketMessage(): Flow<MessageApi.ResponseFromMessageSocket> = flow {
         client.webSocket(
             method = HttpMethod.Get,
             host = instance.host,
@@ -68,17 +70,20 @@ internal class MessageApiImpl(
                 try {
                     when (val answer = incoming.receive()) {
                         is Frame.Text -> {
-                            answer.readText().split(":").apply {
+                            val text = answer.readText()
+                            Log.d("Socket", "get $text")
+                            text.split(":").apply {
                                 when (get(0)){
-                                    MessageApi.AnswerFromMessageSocket.NewMessage.TAG -> {
-                                        emit(MessageApi.AnswerFromMessageSocket.NewMessage(get(1)))
+                                    MessageApi.ResponseFromMessageSocket.NewMessage.TAG -> {
+                                        emit(MessageApi.ResponseFromMessageSocket.NewMessage(get(1)))
                                     }
                                 }
                             }
                         }
                         is Frame.Close -> {
                             if (answer.readReason()?.code == CloseReason.Codes.CANNOT_ACCEPT.code){
-                                emit(MessageApi.AnswerFromMessageSocket.DontAuth)
+                                Log.d("Socket", "auth error")
+                                emit(MessageApi.ResponseFromMessageSocket.DontAuth)
                             }
                         }
                         is Frame.Binary,
@@ -86,9 +91,16 @@ internal class MessageApiImpl(
                         is Frame.Pong -> {
                         }
                     }
-                } catch (e: ClosedReceiveChannelException){
-                    Log.d("Socket",e.toString())
-                    emit(MessageApi.AnswerFromMessageSocket.Exit)
+                } catch (e: ClosedReceiveChannelException) {
+                    if (closeReason.await()?.code == CloseReason.Codes.CANNOT_ACCEPT.code){
+                        emit(MessageApi.ResponseFromMessageSocket.DontAuth)
+                    } else {
+                        emit(MessageApi.ResponseFromMessageSocket.Exit)
+                    }
+                    Log.d("Socket", e.toString())
+                } catch (e: ConnectTimeoutException) {
+                    Log.d("Socket", e.toString())
+                    emit(MessageApi.ResponseFromMessageSocket.Exit)
                 }
             }
         }

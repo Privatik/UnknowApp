@@ -7,4 +7,8 @@ interface ChatRepository {
     val messagesFLow: Flow<List<MessageDTO>>
 
     suspend fun sendMessage(text: String): Result<Boolean>
+
+    suspend fun refreshPage(initPage: Int = 0)
+    suspend fun actionLoadNextPage()
+    suspend fun actionLoadPreviousPage()
 }
