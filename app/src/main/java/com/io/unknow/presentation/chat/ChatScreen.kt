@@ -24,6 +24,7 @@ import com.io.unknow.presentation.chat.components.Message
 import com.io.unknow.presentation.components.StandardTextField
 import com.io.unknow.presentation.ui.theme.SpaceMedium
 import com.io.unknow.presentation.util.factory
+import com.io.unknow.presentation.util.rememberPagingAndAutoScrollingLazyListState
 import io.pagination.common.rememberPagingLazyListState
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -34,7 +35,7 @@ fun ChatScreen(
     viewModel: ChatViewModel,
 ){
     val state by viewModel.state.collectAsState()
-    val lazyScrollState = rememberPagingLazyListState(
+    val lazyScrollState = rememberPagingAndAutoScrollingLazyListState(
         nextPageLoading = viewModel::actionLoadNextPage,
         previousPageLoading = viewModel::actionLoadPreviousPage
     )

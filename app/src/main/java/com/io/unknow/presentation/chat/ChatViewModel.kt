@@ -28,9 +28,6 @@ sealed class ChatEffect{
 }
 
 class ChatViewModel(
-    private val paginatorUseCase: PagingAdapter<Int, List<MessageDTO>> = PagingAdapter(MessagePagination(
-        implMessageApi()
-    )),
     private val sendMassageUseCase: ChatInteractor = ChatInteractor(implChatRepository()),
     private val userRepository: UserRepository = implUserRepository(),
 ): ViewModel() {
@@ -43,12 +40,12 @@ class ChatViewModel(
 
     init {
         initUserId()
-//        initPage()
+        initPage()
         listenerLoadPage()
     }
 
-    private fun initPage() = viewModelScope.launch{
-        paginatorUseCase.actionRefresh(0)
+    private fun initPage() = viewModelScope.launch(Dispatchers.IO){
+        sendMassageUseCase.initPage()
     }
 
     private fun initUserId() = viewModelScope.launch{
@@ -56,39 +53,11 @@ class ChatViewModel(
     }
 
     private fun listenerLoadPage(){
-//        paginatorUseCase.listener(
-//            scope = viewModelScope,
-//            onSuccess = {
-//                val list = it.map { dto -> dto.asUI() }
-//                val oldMessage = _state.value.messages
-//                val newMessage = if ((oldMessage.lastOrNull()?.time ?: -1) > (list.firstOrNull()?.time ?: -1)) {
-//                    list + oldMessage
-//                } else {
-//                    oldMessage + list
-//                }
-//                _state.emit(
-//                    _state.value.copy(messages = newMessage)
-//                )
-//            },
-//            onFailure = {
-//
-//            }
-//        )
-
-        sendMassageUseCase.messagesFLow.map { Result.success(it) }
-            .onEach {
-                if (it.isSuccess){
-                    val list = it.getOrDefault(emptyList()).map { dto -> dto.asUI() }
-                    val oldMessage = _state.value.messages
-                    val newMessage = if ((oldMessage.lastOrNull()?.time ?: -1) > (list.firstOrNull()?.time ?: -1)) {
-                        oldMessage + list
-                    } else {
-                        list + oldMessage
-                    }.toSet().toList()
-                    _state.emit(
-                        _state.value.copy(messages = newMessage)
-                    )
-                }
+        sendMassageUseCase.messagesFLow
+            .onEach { list ->
+                _state.emit(
+                    _state.value.copy(messages = list.map { it.asUI() })
+                )
             }
             .flowOn(Dispatchers.IO)
             .launchIn(viewModelScope)
@@ -96,12 +65,12 @@ class ChatViewModel(
 
     fun actionLoadNextPage() = viewModelScope.launch {
         _state.emit(_state.value.copy(isLoadingNewMessage = true))
-        paginatorUseCase.actionLoadNext()
+        sendMassageUseCase.actionLoadNextPage()
         _state.emit(_state.value.copy(isLoadingNewMessage = false))
     }
 
     fun actionLoadPreviousPage() = viewModelScope.launch {
-        paginatorUseCase.actionLoadPrevious()
+        sendMassageUseCase.actionLoadPreviousPage()
     }
 
     fun setMessageText(text: String) = viewModelScope.launch{
@@ -114,7 +83,8 @@ class ChatViewModel(
     }
 
     fun sendMessage() = viewModelScope.launch {
-        sendMassageUseCase.send(state.value.messageText)
+        val message = state.value.messageText
         _state.emit(state.value.copy(messageText = ""))
+        sendMassageUseCase.send(message)
     }
 }

@@ -1,33 +1,22 @@
 package com.io.data.repository
 
-import android.content.Context
-import android.util.Log
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.edit
 import com.io.data.di.DataServiceLocator
-import com.io.data.encrypted.CryptoManager
-import com.io.data.encrypted.secureEdit
-import com.io.data.encrypted.secureMap
 import com.io.data.remote.UserApi
-import com.io.data.remote.UserApiImpl
 import com.io.data.remote.implUserApi
-import com.io.data.storage.*
-import com.io.data.storage.KeyForRefreshToken
+import com.io.data.storage.DataStorage
 import com.io.data.storage.KeyForUserId
 import com.io.data.storage.KeyForUserName
+import com.io.data.storage.userIdKey
 import com.io.data.token.TokenManager
 import com.io.domain.repository.UserRepository
 import io.ktor.client.*
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 
 fun implUserRepository(
 ): UserRepository {
     val instance = DataServiceLocator.instance()
     return UserRepositoryImpl(
-        instance.cryptoManager,
-        instance.dataStore,
+        instance.dataStorage,
         implUserApi(),
         instance.jwtTokenManager
     )
@@ -35,15 +24,18 @@ fun implUserRepository(
 
 
 internal class UserRepositoryImpl(
-    private val cryptoManager: CryptoManager,
-    private val dataStore: DataStore<Preferences>,
+    private val dataStore: DataStorage,
     private val userApi: UserApi,
     private val tokenManager: TokenManager<HttpClient>
 ):UserRepository{
     override val userId: Flow<String>
-        get() = dataStore.data.secureMap(cryptoManager, userIdKey) { preference ->
-            preference[KeyForUserId].orEmpty()
-        }
+        get() = dataStore.secureData(
+            keyAlias = userIdKey,
+            fetchValue = { preference ->
+                preference[KeyForUserId].orEmpty()
+            },
+            mapper = { it }
+        )
 
     override suspend fun register(email: String, userName: String, password: String): Result<Boolean> {
         return userApi.register(email, userName, password)
@@ -51,7 +43,7 @@ internal class UserRepositoryImpl(
                 dataStore.edit { preference ->
                     preference[KeyForUserName] = response.message.user.userName
                 }
-                dataStore.secureEdit(cryptoManager, userIdKey, response.message.user.id) { preference, encryptedValue ->
+                dataStore.securityEdit(userIdKey, response.message.user.id) { preference, encryptedValue ->
                     preference[KeyForUserId] = encryptedValue
                 }
                 response.message.tokens.apply {
@@ -67,7 +59,7 @@ internal class UserRepositoryImpl(
                 dataStore.edit { preference ->
                     preference[KeyForUserName] = response.message.user.userName
                 }
-                dataStore.secureEdit(cryptoManager, userIdKey, response.message.user.id) { preference, encryptedValue ->
+                dataStore.securityEdit(userIdKey, response.message.user.id) { preference, encryptedValue ->
                     preference[KeyForUserId] = encryptedValue
                 }
                 response.message.tokens.apply {

@@ -51,27 +51,6 @@ class DataServiceLocator private constructor(
         }
     }
 
-    val clientWebsocket by lazy {
-        HttpClient(CIO) {
-            install(WebSockets) {
-                pingInterval = 20_000
-            }
-
-//            myJWTToken()
-
-//            install(Logging) {
-//                logger = object : Logger {
-//                    override fun log(message: String) {
-//                        Log.d("Logger Ktor WebSocket =>", message)
-//                    }
-//
-//                }
-//                level = LogLevel.ALL
-//            }
-        }
-
-    }
-
     val client by lazy {
         HttpClient(CIO) {
             expectSuccess = true
@@ -108,7 +87,7 @@ class DataServiceLocator private constructor(
         }
     }
 
-    fun HttpClientConfig<CIOEngineConfig>.myJWTToken(){
+    private fun HttpClientConfig<CIOEngineConfig>.myJWTToken(){
         install(JWTToken){
             tokenManager = jwtTokenManager
             urlEncodedPathWithOutToken = setOf(
@@ -125,7 +104,7 @@ class DataServiceLocator private constructor(
     private val dataStore = context.userPreferencesDataStore
     val dataStorage = DataStorageImpl(dataStore, cryptoManager)
     private val accessTokenProvider = JWTAccessTokenProvider()
-    private val refreshTokenProvider = JWTRefreshTokenProvider(dataStore, cryptoManager)
+    private val refreshTokenProvider = JWTRefreshTokenProvider(dataStorage)
 
     val jwtTokenManager = JWTTokenManager(
         baseApi,

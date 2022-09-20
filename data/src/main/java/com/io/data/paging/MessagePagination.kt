@@ -16,9 +16,9 @@ import kotlinx.coroutines.flow.asSharedFlow
 
 class MessagePagination(
     private val messageApi: MessageApi
-): Pager<Int, Result<ResponseBody<List<MessageResponse>>>> {
-    private val _data = MutableSharedFlow<Result<ResponseBody<List<MessageResponse>>>>()
-    override val data: Flow<Result<ResponseBody<List<MessageResponse>>>>  = _data.asSharedFlow()
+): Pager<Int, Result<List<MessageResponse>>> {
+    private val _data = MutableSharedFlow<Result<List<MessageResponse>>>()
+    override val data: Flow<Result<List<MessageResponse>>>  = _data.asSharedFlow()
 
     override suspend fun refreshPage(initPage: Int): KeyBody<Int>  = coroutineScope{
         Log.d("Paginator","refreshPage")
@@ -28,23 +28,23 @@ class MessagePagination(
             }
         }
 
-        list.awaitAll()
+        val finalList = list.awaitAll()
+            .map { result -> result.getOrNull()?.message ?: emptyList()}
+            .reduce { acc, new ->
+                acc + new
+            }
+        _data.emit(Result.success(finalList))
         return@coroutineScope KeyBody(null, 3)
     }
 
     override suspend fun nextPage(pagingBody: Int): Int? {
         Log.d("Paginator","nextPage")
         val list = messageApi.getMessages(pagingBody, 20)
-            .map { messages -> messages.message.map { it.asDTO() } }
 
-        _data.emit(list)
+        _data.emit(list.map { response -> response.message })
         list
-            .onSuccess {
-                if (it.isEmpty()) { return null }
-            }
-            .onFailure {
-                return null
-            }
+            .onSuccess { if (it.message.isEmpty()) { return null } }
+            .onFailure { return null }
         return pagingBody + 1
     }
 

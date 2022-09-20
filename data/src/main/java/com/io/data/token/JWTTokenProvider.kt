@@ -1,21 +1,15 @@
 package com.io.data.token
 
-import android.util.Log
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import com.io.data.encrypted.CryptoManager
-import com.io.data.encrypted.secureEdit
-import com.io.data.encrypted.secureMap
+import com.io.data.storage.DataStorage
 import com.io.data.storage.KeyForRefreshToken
 import com.io.data.storage.refreshKey
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.EmptyCoroutineContext
 
 class JWTAccessTokenProvider(): TokenProvider{
     override val coroutineContext: CoroutineContext = Dispatchers.Default
@@ -54,8 +48,7 @@ class JWTAccessTokenProvider(): TokenProvider{
 }
 
 class JWTRefreshTokenProvider(
-    private val dataStore: DataStore<Preferences>,
-    private val cryptoManager: CryptoManager
+    private val dataStore: DataStorage
 ): TokenProvider {
 
     override val coroutineContext: CoroutineContext = Dispatchers.Default
@@ -87,10 +80,14 @@ class JWTRefreshTokenProvider(
                         token.deferred.complete(null)
                         return@actor
                     }
-                    val refreshToken = dataStore.data
-                        .secureMap(cryptoManager, refreshKey){ preference ->
-                            preference[KeyForRefreshToken].orEmpty()
-                        }
+                    val refreshToken = dataStore
+                        .secureData(
+                            keyAlias = refreshKey,
+                            fetchValue = { preference ->
+                                preference[KeyForRefreshToken].orEmpty()
+                            },
+                            mapper = { it }
+                        )
                         .first()
 
                     if (refreshToken.isNotBlank()){
@@ -99,7 +96,7 @@ class JWTRefreshTokenProvider(
                     isUpdate = true
                 }
                 is Action.TokenSet -> {
-                    dataStore.secureEdit(cryptoManager, refreshKey, token.body.orEmpty()) { preference, encryptedValue ->
+                    dataStore.securityEdit(refreshKey, token.body.orEmpty()) { preference, encryptedValue ->
                         preference[KeyForRefreshToken] = encryptedValue
                     }
                     isUpdate = false
