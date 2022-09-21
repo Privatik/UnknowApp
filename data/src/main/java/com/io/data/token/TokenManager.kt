@@ -18,7 +18,7 @@ import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.flow.first
 import kotlin.coroutines.CoroutineContext
 
-interface TokenManager<C> : CoroutineScope{
+interface TokenManager<C>{
 
     suspend fun updateTokens(accessToken: String?, refreshToken: String?)
     suspend fun getAccessToken(): String?
@@ -28,13 +28,12 @@ interface TokenManager<C> : CoroutineScope{
 }
 
 class JWTTokenManager(
+    private val coroutineScope: CoroutineScope,
     private val baseApi: String,
     private val accessTokenProvider: TokenProvider,
     private val refreshTokenProvider: TokenProvider,
     private val dataStore: DataStorage
 ) : TokenManager<HttpClient>{
-
-    override val coroutineContext: CoroutineContext = Dispatchers.Default
 
     private var channel: SendChannel<Action> = actionActor()
 
@@ -66,7 +65,7 @@ class JWTTokenManager(
     }
 
     @OptIn(ObsoleteCoroutinesApi::class)
-    private fun actionActor() = actor<Action>{
+    private fun actionActor() = coroutineScope.actor<Action>{
         for (action in channel) {
             when(action) {
                 is Action.UpdateToken -> {

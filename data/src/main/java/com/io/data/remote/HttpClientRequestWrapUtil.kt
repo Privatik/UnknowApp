@@ -54,18 +54,22 @@ public class JWTToken() {
 
         override fun install(feature: JWTToken, scope: HttpClient) {
             scope.requestPipeline.intercept(HttpRequestPipeline.Before) {
+                Log.d("Token","into in handle ${feature.tokenManager}")
                 if (feature.tokenManager == null) return@intercept
 
                 val endPath = context.url.encodedPath
                 when {
                     feature.urlEncodedPathWithOutToken.contains(endPath) -> {}
                     feature.urlEncodedPathWithRefreshToken.contains(endPath) -> {
+                        Log.d("Token","refresh get}")
                         context.updateJWTToken(feature.tokenManager?.getRefreshToken() ?: "")
                     }
                     else -> {
+                        Log.d("Token","access get}")
                         val accessToken = feature.tokenManager?.getAccessToken() ?: kotlin.run {
                             feature.tokenManager?.updateToken(scope, "Bearer ${null}") ?: ""
                         }
+                        Log.d("Token", "access $accessToken")
                         context.updateJWTToken(accessToken)
                     }
                 }

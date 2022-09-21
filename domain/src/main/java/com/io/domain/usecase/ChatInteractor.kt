@@ -15,11 +15,9 @@ class ChatInteractor(
     private val idSet = hashSetOf<String>()
     val messagesFLow: Flow<List<MessageDTO>> = chatRepository.messagesFLow
         .scan(LinkedList<MessageDTO>()){ list, messages ->
-            println("Socket  into")
             messages.onSuccess { newList ->
                 newList.forEach { item ->
                     if (idSet.contains(item.id)){
-                        println("Socket dont add")
                         return@forEach
                     }
                     idSet.add(item.id)
@@ -28,17 +26,14 @@ class ChatInteractor(
                             list.add(item)
                         }
                         list.first.timeSend <= item.timeSend -> {
-                            println("Socket addFirst")
                             list.addFirst(item)
                         }
                         list.last.timeSend >= item.timeSend -> {
-                            println("Socket addLast")
                             list.addLast(item)
                         }
                     }
                 }
             }
-            println("Socket  outto")
             list
         }
 

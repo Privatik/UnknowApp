@@ -73,7 +73,6 @@ internal class MessageApiImpl(
                                     emit(MessageApi.ResponseFromMessageSocket.NewMessage(get(1)))
                                 }
                             }
-                            Log.d("Socket", "get ${text.split(":")} $isActive")
                         }
                         is Frame.Close -> {
                             close(CloseReason(CloseReason.Codes.CANNOT_ACCEPT,""))

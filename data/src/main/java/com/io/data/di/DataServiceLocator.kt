@@ -24,6 +24,9 @@ import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.http.*
 import io.ktor.util.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import java.lang.NullPointerException
 
 class DataServiceLocator private constructor(
@@ -100,13 +103,16 @@ class DataServiceLocator private constructor(
         }
     }
 
+    private val tokenCoroutineScope = CoroutineScope(Dispatchers.IO)
+
     private val cryptoManager = CryptoManager()
     private val dataStore = context.userPreferencesDataStore
     val dataStorage = DataStorageImpl(dataStore, cryptoManager)
-    private val accessTokenProvider = JWTAccessTokenProvider()
-    private val refreshTokenProvider = JWTRefreshTokenProvider(dataStorage)
+    private val accessTokenProvider = JWTAccessTokenProvider(tokenCoroutineScope)
+    private val refreshTokenProvider = JWTRefreshTokenProvider(tokenCoroutineScope,dataStorage)
 
     val jwtTokenManager = JWTTokenManager(
+        tokenCoroutineScope,
         baseApi,
         accessTokenProvider,
         refreshTokenProvider,

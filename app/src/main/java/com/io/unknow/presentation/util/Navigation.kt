@@ -55,7 +55,7 @@ fun Navigation(){
         }
 
         composable(Screen.ChatScreen.route){
-            val viewModel = viewModel<ChatViewModel>(factory = factory(ChatViewModel()))
+            val viewModel = viewModel<ChatViewModel>()
             ChatScreen(
                 onExit = {
                     navController.popBackStack()

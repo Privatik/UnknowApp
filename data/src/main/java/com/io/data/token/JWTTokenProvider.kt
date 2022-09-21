@@ -1,9 +1,11 @@
 package com.io.data.token
 
+import android.util.Log
 import com.io.data.storage.DataStorage
 import com.io.data.storage.KeyForRefreshToken
 import com.io.data.storage.refreshKey
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.channels.SendChannel
@@ -11,8 +13,9 @@ import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.flow.first
 import kotlin.coroutines.CoroutineContext
 
-class JWTAccessTokenProvider(): TokenProvider{
-    override val coroutineContext: CoroutineContext = Dispatchers.Default
+class JWTAccessTokenProvider(
+    private val coroutineScope: CoroutineScope
+): TokenProvider{
     private val channel: SendChannel<Action> = actionActor()
 
     override suspend fun updateToken(token: String?) {
@@ -31,15 +34,17 @@ class JWTAccessTokenProvider(): TokenProvider{
     }
 
     @OptIn(ObsoleteCoroutinesApi::class)
-    private fun actionActor() = actor<Action>{
+    private fun actionActor() = coroutineScope.actor<Action>{
         var token: String? = null
 
         for (action in channel) {
             when(action) {
                 is Action.TokenGet -> {
+                    Log.d("Token","access Get")
                     action.deferred.complete(token)
                 }
                 is Action.TokenSet -> {
+                    Log.d("Token","access Set")
                     token = action.body
                 }
             }
@@ -48,10 +53,9 @@ class JWTAccessTokenProvider(): TokenProvider{
 }
 
 class JWTRefreshTokenProvider(
+    private val coroutineScope: CoroutineScope,
     private val dataStore: DataStorage
 ): TokenProvider {
-
-    override val coroutineContext: CoroutineContext = Dispatchers.Default
     private var channel: SendChannel<Action> = actionActor()
 
     override suspend fun updateToken(token: String?) {
@@ -70,12 +74,13 @@ class JWTRefreshTokenProvider(
     }
 
     @OptIn(ObsoleteCoroutinesApi::class)
-    private fun actionActor() = actor<Action>{
+    private fun actionActor() = coroutineScope.actor<Action>{
         var isUpdate = false
 
         for (token in channel) {
             when(token) {
                 is Action.TokenGet -> {
+                    Log.d("Token","refresh Get")
                     if (isUpdate) {
                         token.deferred.complete(null)
                         return@actor
@@ -96,6 +101,7 @@ class JWTRefreshTokenProvider(
                     isUpdate = true
                 }
                 is Action.TokenSet -> {
+                    Log.d("Token","refresh Set")
                     dataStore.securityEdit(refreshKey, token.body.orEmpty()) { preference, encryptedValue ->
                         preference[KeyForRefreshToken] = encryptedValue
                     }

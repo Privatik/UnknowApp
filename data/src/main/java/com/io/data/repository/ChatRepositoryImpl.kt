@@ -13,10 +13,10 @@ import com.io.data.websocket.WebSocketManagerImpl
 import com.io.domain.model.MessageDTO
 import com.io.domain.repository.ChatRepository
 import io.pagination.common.PagingAdapter
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.merge
-import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.*
+import java.util.concurrent.CancellationException
+import kotlin.collections.map
+import kotlin.map
 
 fun implChatRepository(): ChatRepository{
     val instance = DataServiceLocator.instance()
@@ -27,21 +27,19 @@ class ChatRepositoryImpl(
     private val dataStore: DataStorage,
     private val messageApi: MessageApi,
     private val paginator: PagingAdapter<Int, Result<List<MessageResponse>>> = PagingAdapter(MessagePagination(messageApi)),
-    private val webSocketManager: WebSocketManager<MessageApi.ResponseFromMessageSocket> = WebSocketManagerImpl(messageApi)
+    private val webSocketManager: WebSocketManager<Result<List<MessageResponse>>> = WebSocketManagerImpl(messageApi)
 ): ChatRepository {
 
     override val messagesFLow: Flow<Result<List<MessageDTO>>> =
         merge(
-            webSocketManager.data.transform(),
+            webSocketManager.data,
             paginator.data { it }
         )
         .map { result ->
-            Log.d("Socket","get new message ${result.getOrNull()}")
+            Log.d("Socket","Map to dto")
             result.map { response ->
                 response.map { it.asDTO() }
             }
-        }.onStart {
-            webSocketManager.reconnect()
         }
 
     override suspend fun sendMessage(text: String) {
@@ -51,29 +49,5 @@ class ChatRepositoryImpl(
     override suspend fun refreshPage(initPage: Int) = paginator.actionRefresh(initPage)
     override suspend fun actionLoadNextPage() = paginator.actionLoadNext()
     override suspend fun actionLoadPreviousPage() = paginator.actionLoadPrevious()
-
-
-    private fun Flow<MessageApi.ResponseFromMessageSocket>.transform(): Flow<Result<List<MessageResponse>>>{
-        return map { apiAnswer ->
-            Log.d("Socket","trams $apiAnswer")
-            when(apiAnswer){
-                MessageApi.ResponseFromMessageSocket.DontAuth -> {
-                    val newResult = messageApi.getMessages(0, 20).map {
-                        it.message
-                    }
-                    webSocketManager.reconnect()
-                    newResult
-                }
-                is MessageApi.ResponseFromMessageSocket.NewMessage -> {
-                    messageApi.getMessage(apiAnswer.id).map {
-                        listOf(it.message)
-                    }
-                }
-                MessageApi.ResponseFromMessageSocket.Exit -> {
-                    Result.success(emptyList())
-                }
-            }
-        }
-    }
 
 }

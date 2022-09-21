@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 class MessagePagination(
     private val messageApi: MessageApi
 ): Pager<Int, Result<List<MessageResponse>>> {
-    private val _data = MutableSharedFlow<Result<List<MessageResponse>>>()
+    private val _data = MutableSharedFlow<Result<List<MessageResponse>>>(replay = 1)
     override val data: Flow<Result<List<MessageResponse>>>  = _data.asSharedFlow()
 
     override suspend fun refreshPage(initPage: Int): KeyBody<Int>  = coroutineScope{

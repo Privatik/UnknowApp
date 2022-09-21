@@ -18,11 +18,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
 import com.google.accompanist.insets.navigationBarsWithImePadding
 import com.google.accompanist.insets.statusBarsPadding
 import com.io.unknow.presentation.chat.components.Message
 import com.io.unknow.presentation.components.StandardTextField
 import com.io.unknow.presentation.ui.theme.SpaceMedium
+import com.io.unknow.presentation.util.collectAsStateInLifeCycle
 import com.io.unknow.presentation.util.factory
 import com.io.unknow.presentation.util.rememberPagingAndAutoScrollingLazyListState
 import io.pagination.common.rememberPagingLazyListState
@@ -34,7 +36,7 @@ fun ChatScreen(
     onExit:() -> Unit,
     viewModel: ChatViewModel,
 ){
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.state.collectAsStateInLifeCycle(Lifecycle.State.STARTED)
     val lazyScrollState = rememberPagingAndAutoScrollingLazyListState(
         nextPageLoading = viewModel::actionLoadNextPage,
         previousPageLoading = viewModel::actionLoadPreviousPage
